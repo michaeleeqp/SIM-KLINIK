@@ -66,37 +66,7 @@
                       <a href="/list/pendaftaran">
                         <span class="sub-item">List Pendaftaran</span>
                       </a>
-                    </li>
-                    <li>
-                      <a href="components/panels.html">
-                        <span class="sub-item">Panels</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="components/notifications.html">
-                        <span class="sub-item">Notifications</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="components/sweetalert.html">
-                        <span class="sub-item">Sweet Alert</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="components/font-awesome-icons.html">
-                        <span class="sub-item">Font Awesome Icons</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="components/simple-line-icons.html">
-                        <span class="sub-item">Simple Line Icons</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="components/typography.html">
-                        <span class="sub-item">Typography</span>
-                      </a>
-                    </li>
+                    </li>         
                   </ul>
                 </div>
               </li>
@@ -113,11 +83,6 @@
                         <span class="sub-item">Master pasien</span>
                       </a>
                     </li>
-                    <li>
-                      <a href="icon-menu.html">
-                        <span class="sub-item">Icon Menu</span>
-                      </a>
-                    </li>
                   </ul>
                 </div>
               </li>
@@ -131,7 +96,7 @@
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="forms/forms.html">
-                        <span class="sub-item">Basic Form</span>
+                        <span class="sub-item">SOAP</span>
                       </a>
                     </li>
                   </ul>

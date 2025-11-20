@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
+    public function index()
+    {
+        $patients = Patient::orderBy('id', 'desc')->get();
+
+        return view('pages.master_pasien', compact('patients'));
+    }
     public function create()
     {
         $lastPatient = Patient::orderBy('no_rm', 'desc')->first();

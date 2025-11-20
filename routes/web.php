@@ -43,6 +43,5 @@ Route::post('/kunjungan/store', [KunjunganController::class, 'store'])
     ->name('kunjungan.store');
 
 // Master pasien
-Route::get('/master/pasien', function () {
-    return view('pages.master_pasien');
-})->name('master.pasien');
+Route::get('/master/pasien', [PatientController::class, 'index'])
+    ->name('master.pasien');

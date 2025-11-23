@@ -1,3 +1,7 @@
+@php
+    \Carbon\Carbon::setLocale('id'); // Atur locale ke Indonesia
+@endphp
+
 @extends('layout.app')
 
 @section('content')
@@ -57,7 +61,7 @@
                                   <td>
                                       <strong>{{ $p->nama_pasien ?? '-' }}</strong><br>
                                       Alamat: {{ $p->alamat ?? '-' }}<br>
-                                      Nama Penanggung Jawab: {{ $p->pj_nama ?? '-' }}
+                                      Nama Penanggung Jawab: {{ $p->kunjungans->last()->pj_nama ?? '-' }} 
                                   </td>
 
                                   {{-- Kolom 3: Tanggal Lahir / Umur --}}

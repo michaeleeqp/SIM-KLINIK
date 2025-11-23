@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientController; 
 use App\Http\Controllers\KunjunganController;
+use App\Http\Controllers\DashboardController;
 
 // Halaman utama
 Route::get('/', function () {
@@ -13,6 +14,9 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('pages.dashboard');
 });
+
+// Dashboard Controller
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // FORM PENDAFTARAN PASIEN LAMA (HALAMAN KOSONG)
 Route::get('/pendaftaran/lama', [KunjunganController::class, 'form'])

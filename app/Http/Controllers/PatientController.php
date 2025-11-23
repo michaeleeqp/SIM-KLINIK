@@ -42,10 +42,10 @@ class PatientController extends Controller
                 'alamat' => 'required|string',
                 'no_wa' => 'required|digits_between:10,13',
                 'pekerjaan' => 'required|string',
-                'provinsi_id' => 'required|string',
-                'kabupaten_id' => 'required|string',
-                'kecamatan_id' => 'required|string',
-                'desa_id' => 'required|string',
+                'provinsi_id' => 'required|string|min:1',
+                'kabupaten_id' => 'required|string|min:1',
+                'kecamatan_id' => 'required|string|min:1',
+                'desa_id' => 'required|string|min:1',
             ]);
 
             // 🔹 Nomor RM otomatis

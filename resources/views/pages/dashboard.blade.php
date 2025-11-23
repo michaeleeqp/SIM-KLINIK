@@ -23,13 +23,13 @@
                         <div
                           class="icon-big text-center icon-primary bubble-shadow-small"
                         >
-                          <i class="fas fa-users"></i>
+                          <i class="fas fa-user"></i>
                         </div>
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Visitors</p>
-                          <h4 class="card-title">1,294</h4>
+                          <p class="card-category">Kunjungan Hari Ini</p>
+                          <h4 class="card-title">{{ number_format($kunjunganHariIni ?? 0) }}</h4>
                         </div>
                       </div>
                     </div>
@@ -44,13 +44,13 @@
                         <div
                           class="icon-big text-center icon-info bubble-shadow-small"
                         >
-                          <i class="fas fa-user-check"></i>
+                          <i class="fas fa-regular fa-user-plus"></i>
                         </div>
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Subscribers</p>
-                          <h4 class="card-title">1303</h4>
+                          <p class="card-category">Pasien Baru (hari ini)</p>
+                          <h4 class="card-title">{{ $pasienBaruHariIni }}</h4>
                         </div>
                       </div>
                     </div>
@@ -71,7 +71,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Sales</p>
-                          <h4 class="card-title">$ 1,345</h4>
+                          <h4 class="card-title"></h4>
                         </div>
                       </div>
                     </div>
@@ -86,13 +86,13 @@
                         <div
                           class="icon-big text-center icon-secondary bubble-shadow-small"
                         >
-                          <i class="far fa-check-circle"></i>
+                          <i class="fas fa-solid fa-users"></i>
                         </div>
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Order</p>
-                          <h4 class="card-title">576</h4>
+                          <p class="card-category">Total Pasien</p>
+                          <h4 class="card-title">{{ $totalPasien }}</h4>
                         </div>
                       </div>
                     </div>

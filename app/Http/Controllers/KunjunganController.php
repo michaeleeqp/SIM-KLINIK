@@ -50,4 +50,5 @@ class KunjunganController extends Controller
             ->route('list.pendaftaran')
             ->with('success', 'Kunjungan pasien lama berhasil ditambahkan.');
     }
+
 }

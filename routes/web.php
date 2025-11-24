@@ -34,6 +34,18 @@ Route::get('/pendaftaran/lama', [KunjunganController::class, 'form'])
 Route::get('/pendaftaran/lama/pasien/{id}', [KunjunganController::class, 'create'])
     ->name('kunjungan.create');
 
+// EDIT KUNJUNGAN
+Route::get('/pendaftaran/{id}/edit', [KunjunganController::class, 'edit'])
+    ->name('kunjungan.edit');
+
+// UPDATE KUNJUNGAN
+Route::put('/pendaftaran/{id}', [KunjunganController::class, 'update'])
+    ->name('kunjungan.update');
+
+// DELETE KUNJUNGAN
+Route::delete('/pendaftaran/{id}', [KunjunganController::class, 'destroy'])
+    ->name('kunjungan.destroy');
+
 // SIMPAN KUNJUNGAN PASIEN LAMA
 Route::post('/kunjungan/store', [KunjunganController::class, 'store'])
     ->name('kunjungan.store');

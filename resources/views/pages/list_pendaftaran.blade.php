@@ -74,24 +74,20 @@
                               <td>{{ $k->jenis_bayar ?? '-' }}</td> {{-- Jenis pembayaran --}}
                               <td>
                                 <div class="form-button-action">
-                                  <button
-                                    type="button"
-                                    data-bs-toggle="tooltip"
-                                    title=""
-                                    class="btn btn-link btn-primary btn-lg"
-                                    data-original-title="Edit Task"
-                                  >
-                                    <i class="fa fa-edit"></i>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    data-bs-toggle="tooltip"
-                                    title=""
-                                    class="btn btn-link btn-danger"
-                                    data-original-title="Remove"
-                                  >
-                                    <i class="fa fa-times"></i>
-                                  </button>
+                                    <a href="{{ route('kunjungan.edit', $k->id) }}"
+                                      class="btn btn-link btn-primary btn-lg">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('kunjungan.destroy', $k->id) }}" 
+                                          method="POST"
+                                          onsubmit="return confirm('Yakin ingin menghapus data ini?')"
+                                          style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-link btn-danger">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </form>
                                 </div>
                               </td>
                             </tr>

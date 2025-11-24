@@ -51,4 +51,35 @@ class KunjunganController extends Controller
             ->with('success', 'Kunjungan pasien lama berhasil ditambahkan.');
     }
 
+    public function edit($id)
+    {
+        $kunjungan = Kunjungan::with('patient')->findOrFail($id);
+        return view('pages.edit_kunjungan', compact('kunjungan'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'poli_tujuan' => 'required|string',
+            'tanggal_kunjungan' => 'required|date',
+            'jenis_bayar' => 'required|string',
+            'no_asuransi' => 'nullable|string',
+            
+        ]);
+
+        $kunjungan = Kunjungan::findOrFail($id);
+        $kunjungan->update($validated);
+
+        return redirect()->route('list.pendaftaran')
+                        ->with('success', 'Kunjungan berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+        $kunjungan->delete();
+
+        return redirect()->route('list.pendaftaran')
+                        ->with('success', 'Kunjungan berhasil dihapus');
+    }
 }

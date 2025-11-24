@@ -87,7 +87,7 @@
                                       {{ $p->no_ktp ?? '-' }}<br>
 
                                       <strong>NO BPJS</strong><br>
-                                      {{ $p->no_asuransi ?? '-' }}
+                                      {{ $p->kunjungans->last()->no_asuransi ?? '-' }}
                                   </td>
 
                                   {{-- Kolom 5: Action --}}

@@ -79,7 +79,7 @@
 
         @yield('content')
 
-        <footer class="footer">
+        <!-- <footer class="footer">
           <div class="container-fluid d-flex justify-content-between">
             <nav class="pull-left">
               <ul class="nav">
@@ -105,7 +105,7 @@
               <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
             </div>
           </div>
-        </footer>
+        </footer> -->
       </div>
 
       <!-- End Custom template -->

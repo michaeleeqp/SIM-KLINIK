@@ -65,3 +65,7 @@ Route::get('/master/pasien', [PatientController::class, 'index'])
 Route::get('/ugd', function () {
     return view('pages.ugd');
 });
+
+Route::get('/umum', function () {
+    return view('pages.umum');
+});

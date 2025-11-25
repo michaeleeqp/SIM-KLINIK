@@ -61,3 +61,7 @@ Route::get('/pasien/cari', [PatientController::class, 'search'])
     // Master pasien
 Route::get('/master/pasien', [PatientController::class, 'index'])
     ->name('master.pasien');
+
+Route::get('/ugd', function () {
+    return view('pages.ugd');
+});

@@ -28,7 +28,7 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Kunjungan Hari Ini</p>
+                          <p class="card-category">Kunjungan Perhari</p>
                           <h4 class="card-title">{{ number_format($kunjunganHariIni ?? 0) }}</h4>
                         </div>
                       </div>
@@ -49,7 +49,7 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Pasien Baru (hari ini)</p>
+                          <p class="card-category">Pasien Baru Perhari</p>
                           <h4 class="card-title">{{ $pasienBaruHariIni }}</h4>
                         </div>
                       </div>

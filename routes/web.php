@@ -58,7 +58,7 @@ Route::get('/list/pendaftaran', [KunjunganController::class, 'index'])
 Route::get('/pasien/cari', [PatientController::class, 'search'])
     ->name('pasien.search');
 
-    // Master pasien
+// Master pasien
 Route::get('/master/pasien', [PatientController::class, 'index'])
     ->name('master.pasien');
 
@@ -66,6 +66,6 @@ Route::get('/ugd', function () {
     return view('pages.ugd');
 });
 
-Route::get('/umum', function () {
-    return view('pages.umum');
+Route::get('/ranap', function () {
+    return view('pages.ranap');
 });

@@ -23,6 +23,35 @@ class PatientController extends Controller
         return view('pages.pendaftaran_baru', compact('lastNoRm'));
     }
 
+    public function edit($id)
+    {
+        $patient = Patient::findOrFail($id);
+        return view('pages.edit_patient', compact('patient'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nama_pasien' => 'required|string',
+            'no_ktp' => 'nullable|digits:16',
+            'alamat' => 'required|string',
+            // tambahkan field pasien yang lain
+        ]);
+
+        $patient = Patient::findOrFail($id);
+        $patient->update($validated);
+
+        return redirect()->route('master.pasien')->with('success', 'Data pasien berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $patient = Patient::findOrFail($id);
+        $patient->delete();
+
+        return redirect()->route('master.pasien')->with('success', 'Pasien berhasil dihapus');
+    }
+
     public function store(Request $request)
     {
         DB::beginTransaction();

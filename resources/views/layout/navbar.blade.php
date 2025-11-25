@@ -30,7 +30,7 @@
                     aria-expanded="false"
                   >                    
                     <span class="profile-username">
-                      <span class="fw-bold">di isi nama</span>
+                      <span class="fw-bold">isi nama user</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">

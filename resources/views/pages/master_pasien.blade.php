@@ -93,18 +93,21 @@
                                   {{-- Kolom 5: Action --}}
                                   <td>
                                       <div class="form-button-action">
-                                          <button type="button" class="btn btn-link btn-primary btn-lg" 
-                                                  title="Edit Data Pasien">
-                                              <i class="fa fa-edit"></i>
-                                          </button>
-
-                                          <button type="button" class="btn btn-link btn-danger" 
-                                                  title="Hapus Data Pasien">
-                                              <i class="fa fa-times"></i>
-                                          </button>
-                                      </div>
-                                  </td>
-
+                                    <a href="{{ route('patient.edit', $p->id) }}"
+                                      class="btn btn-link btn-primary btn-lg">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('patient.destroy', $p->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Yakin ingin menghapus data pasien ini?')"
+                                          style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-link btn-danger">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
                               </tr>
                           @endforeach
                         </tbody>

@@ -307,7 +307,7 @@
                             >
                             <option value="" disabled selected hidden>Pilih Tujuan</option>
                             <option value="UGD">UGD</option>
-                            <option value="KLinik Umum">KLinik Umum</option>
+                            <option value="KLinik Umum">Klinik Umum</option>
                             <option value="Rawat Inap">Rawat Inap</option>
                             </select>
                           </div>

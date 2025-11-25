@@ -1,3 +1,8 @@
+@php
+// Cek apakah URL saat ini berada di bawah rute 'pendaftaran'
+    $isPendaftaranActive = request()->is('pendaftaran/*') || request()->is('list/pendaftaran');
+@endphp
+
 <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <!-- Logo Header -->
@@ -27,12 +32,9 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item active">
+              <li class="nav-item @if(request()->is('dashboard')) active @endif">
                 <a
-                  data-bs-toggle="collapse"
                   href="/dashboard"
-                  class="collapsed"
-                  aria-expanded="false"
                 >
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
@@ -44,7 +46,7 @@
                 </span>
                 <h4 class="text-section">Menu</h4>
               </li>
-              <li class="nav-item">
+              <li class="nav-item ">
                 <a data-bs-toggle="collapse" href="#base">
                   <i class="fas fa-layer-group"></i>
                   <p>Pendaftaran</p>
@@ -70,7 +72,7 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
+              <li class="nav-item @if($isPendaftaranActive) active @endif">
                 <a data-bs-toggle="collapse" href="#sidebarLayouts">
                   <i class="fas fa-th-list"></i>
                   <p>Pasien</p>
@@ -95,14 +97,24 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="forms/forms.html">
-                        <span class="sub-item">SOAP</span>
+                      <a href="">
+                        <span class="sub-item">UGD</span>
                       </a>
                     </li>
-                  </ul>
+                    <li>
+                      <a href="">
+                        <span class="sub-item">Klinik Umum</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="">
+                        <span class="sub-item">Rawat Inap</span>
+                      </a>
+                    </li>
+                  </ul>                  
                 </div>
               </li>
-              <li class="nav-item">
+              {{-- <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#tables">
                   <i class="fas fa-table"></i>
                   <p>Tables</p>
@@ -229,7 +241,7 @@
                     </li>
                   </ul>
                 </div>
-              </li>
+              </li> --}}
             </ul>
           </div>
         </div>

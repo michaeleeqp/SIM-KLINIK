@@ -66,6 +66,10 @@ Route::get('/ugd', function () {
     return view('pages.ugd');
 });
 
+Route::get('/umum', function () {
+    return view('pages.ugd');
+});
+
 Route::get('/ranap', function () {
     return view('pages.ranap');
 });

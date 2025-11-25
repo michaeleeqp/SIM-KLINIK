@@ -97,17 +97,17 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="">
+                      <a href="/ugd">
                         <span class="sub-item">UGD</span>
                       </a>
                     </li>
                     <li>
-                      <a href="">
+                      <a href="/umum">
                         <span class="sub-item">Klinik Umum</span>
                       </a>
                     </li>
                     <li>
-                      <a href="">
+                      <a href="/ranap">
                         <span class="sub-item">Rawat Inap</span>
                       </a>
                     </li>

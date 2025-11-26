@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
@@ -12,9 +13,9 @@ class PatientController extends Controller
     public function index()
     {
         $patients = Patient::orderBy('id', 'desc')->get();
-
         return view('pages.master_pasien', compact('patients'));
     }
+
     public function create()
     {
         $lastPatient = Patient::orderBy('no_rm', 'desc')->first();
@@ -26,22 +27,42 @@ class PatientController extends Controller
     public function edit($id)
     {
         $patient = Patient::findOrFail($id);
-        return view('pages.edit_patient', compact('patient'));
+
+        // API wilayah Indonesia
+        $provinsi   = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json")->json();
+        $kabupaten  = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/regencies/{$patient->provinsi_id}.json")->json();
+        $kecamatan  = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/districts/{$patient->kabupaten_id}.json")->json();
+        $desa       = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/villages/{$patient->kecamatan_id}.json")->json();
+
+        $lastKunjungan = Kunjungan::where('patient_id', $id)->latest()->first();
+        
+    return view('pages.edit_patient', compact('patient','provinsi','kabupaten','kecamatan','desa'));
     }
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'nama_pasien' => 'required|string',
-            'no_ktp' => 'nullable|digits:16',
-            'alamat' => 'required|string',
-            // tambahkan field pasien yang lain
+        $patient = Patient::findOrFail($id);
+
+        $patient->update([
+            'nama_pasien'        => $request->nama_pasien,
+            'no_ktp'             => $request->no_ktp,
+            'agama'              => $request->agama,
+            'pendidikan'         => $request->pendidikan,
+            'status_perkawinan'  => $request->status_perkawinan,
+            'status_keluarga'    => $request->status_keluarga,
+            'tanggal_lahir'      => $request->tanggal_lahir,
+            'jenis_kelamin'      => $request->jenis_kelamin,
+            'golongan_darah'     => $request->golongan_darah,
+            'alamat'             => $request->alamat,
+            'no_wa'              => $request->no_wa,
+            'pekerjaan'          => $request->pekerjaan,
+            'provinsi_id'        => $request->provinsi_id,
+            'kabupaten_id'       => $request->kabupaten_id,
+            'kecamatan_id'       => $request->kecamatan_id,
+            
         ]);
 
-        $patient = Patient::findOrFail($id);
-        $patient->update($validated);
-
-        return redirect()->route('master.pasien')->with('success', 'Data pasien berhasil diperbarui');
+        return redirect()->route('master.pasien')->with('success','Data pasien berhasil diupdate!');
     }
 
     public function destroy($id)
@@ -49,7 +70,7 @@ class PatientController extends Controller
         $patient = Patient::findOrFail($id);
         $patient->delete();
 
-        return redirect()->route('master.pasien')->with('success', 'Pasien berhasil dihapus');
+        return redirect()->route('master.pasien')->with('success','Pasien berhasil dihapus');
     }
 
     public function store(Request $request)
@@ -57,7 +78,7 @@ class PatientController extends Controller
         DB::beginTransaction();
 
         try {
-            // 🔹 Validasi PASIEN
+
             $validatedPatient = $request->validate([
                 'nama_pasien' => 'required|string|max:100',
                 'no_ktp' => 'required|digits:16|unique:patients,no_ktp',
@@ -71,72 +92,60 @@ class PatientController extends Controller
                 'alamat' => 'required|string',
                 'no_wa' => 'required|digits_between:10,13',
                 'pekerjaan' => 'required|string',
-                'provinsi_id' => 'required|string|min:1',
-                'kabupaten_id' => 'required|string|min:1',
-                'kecamatan_id' => 'required|string|min:1',
-                'desa_id' => 'required|string|min:1',
+                'provinsi_id' => 'required|string',
+                'kabupaten_id' => 'required|string',
+                'kecamatan_id' => 'required|string',
+                'desa_id' => 'required|string',
             ]);
 
-            // 🔹 Nomor RM otomatis
-            $lastPatient = Patient::orderBy('no_rm', 'desc')->first();
+            $lastPatient = Patient::orderBy('no_rm','desc')->first();
             $validatedPatient['no_rm'] = $lastPatient
-                ? str_pad(((int)$lastPatient->no_rm) + 1, 6, '0', STR_PAD_LEFT)
+                ? str_pad(((int)$lastPatient->no_rm)+1,6,'0',STR_PAD_LEFT)
                 : '000001';
 
-            // 🔹 Simpan pasien
             $patient = Patient::create($validatedPatient);
 
-            // 🔹 Validasi KUNJUNGAN
             $validatedKunjungan = $request->validate([
-                'rujukan_dari' => 'required|string',
-                'keterangan_rujukan' => 'required|string',
-                'tanggal_kunjungan' => 'required|date',
-                'poli_tujuan' => 'required|string',
-                'jadwal_dokter' => 'required|string',
-                'kunjungan' => 'required|string',
-                'jenis_bayar' => 'required|string',
-                'pj_nama' => 'nullable|string',
-                'pj_no_ktp' => 'nullable|digits:16',
-                'pj_alamat' => 'nullable|string',
-                'pj_no_wa' => 'nullable|digits_between:10,13',
-                'catatan_kunjungan' => 'nullable|string',
-                'no_asuransi' => 'nullable|string',
+                'rujukan_dari'=>'required|string',
+                'keterangan_rujukan'=>'required|string',
+                'tanggal_kunjungan'=>'required|date',
+                'poli_tujuan'=>'required|string',
+                'jadwal_dokter'=>'required|string',
+                'kunjungan'=>'required|string',
+                'jenis_bayar'=>'required|string',
+                'pj_nama'=>'nullable|string',
+                'pj_no_ktp'=>'nullable|digits:16',
+                'pj_alamat'=>'nullable|string',
+                'pj_no_wa'=>'nullable|digits_between:10,13',
+                'catatan_kunjungan'=>'nullable|string',
+                'no_asuransi'=>'nullable|string'
             ]);
 
             $validatedKunjungan['patient_id'] = $patient->id;
-
-            // 🔹 Simpan kunjungan pertama
             Kunjungan::create($validatedKunjungan);
 
             DB::commit();
-
-            return redirect()
-                ->route('list.pendaftaran')
-                ->with('success', 'Pendaftaran pasien baru + kunjungan berhasil disimpan.');
+            return redirect()->route('list.pendaftaran')->with('success','Pasien + kunjungan tersimpan');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            return back()->withErrors(['error'=>$e->getMessage()]);
         }
     }
+
     public function search(Request $request)
     {
         $keyword = $request->q ?? $request->keyword;
 
-        $patient = Patient::where('no_rm', 'like', "%{$keyword}%")
-            ->orWhere('no_ktp', 'like', "%{$keyword}%")
-            ->first();
+        $patient = Patient::where('no_rm','like',"%{$keyword}%")
+                          ->orWhere('no_ktp','like',"%{$keyword}%")
+                          ->first();
 
-        if (!$patient) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pasien tidak ditemukan'
-            ], 404);
+        if(!$patient){
+            return response()->json(['success'=>false,'message'=>'Tidak ditemukan'],404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $patient
-        ]);
+        return response()->json(['success'=>true,'data'=>$patient]);
     }
+
 }

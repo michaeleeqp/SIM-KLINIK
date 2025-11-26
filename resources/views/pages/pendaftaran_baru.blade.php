@@ -129,7 +129,7 @@
                             </div>
                             <div class="form-group">
                               <label for="tanggal_lahir">Tanggal Lahir</label>
-                                <div class="input-group mb-3">
+                                <div class="input-group">
                                   <input
                                     type="date"
                                     class="form-control"

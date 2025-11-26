@@ -92,21 +92,24 @@
 
                                   {{-- Kolom 5: Action --}}
                                   <td>
-                                      <div class="form-button-action">
-                                    <a href="{{ route('patient.edit', $p->id) }}"
-                                      class="btn btn-link btn-primary btn-lg">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('patient.destroy', $p->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Yakin ingin menghapus data pasien ini?')"
-                                          style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-link btn-danger">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </form>
+                                    <div class="form-button-action d-flex gap-2">
+                                        <a href="{{ route('patient.edit', $p->id) }}" 
+                                          class="btn btn-primary d-flex align-items-center justify-content-center px-3 py-2">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        <form action="{{ route('patient.destroy', $p->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Yakin ingin menghapus data pasien ini?')"
+                                              style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger d-flex align-items-center justify-content-center px-3 py-2">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                  </td>
                                 </div>
                               </tr>
                           @endforeach

@@ -49,8 +49,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Tanggal Lahir</label>
-                                <input type="text" class="form-control" value="{{ $kunjungan->patient->tanggal_lahir }}" readonly>
+                                <label class="form-label fw-bold">Tanggal Lahir & Umur</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    value="{{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->locale('id')->translatedFormat('d F Y') }} 
+                                    {{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->age }} Tahun" 
+                                    readonly
+                                >
                             </div>
 
                             <hr>

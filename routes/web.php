@@ -62,6 +62,17 @@ Route::get('/pasien/cari', [PatientController::class, 'search'])
 Route::get('/master/pasien', [PatientController::class, 'index'])
     ->name('master.pasien');
 
+Route::get('/master/pasien/{id}/edit', [PatientController::class, 'edit'])
+    ->name('patient.edit');
+
+// UPDATE DATA PASIEN
+Route::put('/master/pasien/{id}', [PatientController::class, 'update'])
+    ->name('patient.update');
+
+// DELETE DATA PASIEN
+Route::delete('/master/pasien/{id}', [PatientController::class, 'destroy'])
+    ->name('patient.destroy');
+
 Route::get('/ugd', function () {
     return view('pages.ugd');
 });
@@ -73,3 +84,4 @@ Route::get('/umum', function () {
 Route::get('/ranap', function () {
     return view('pages.ranap');
 });
+

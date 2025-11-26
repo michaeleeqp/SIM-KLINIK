@@ -73,9 +73,9 @@
                               </td>
                               <td>{{ $k->jenis_bayar ?? '-' }}</td> {{-- Jenis pembayaran --}}
                               <td>
-                                <div class="form-button-action">
+                                <div class="form-button-action d-flex gap-2">
                                     <a href="{{ route('kunjungan.edit', $k->id) }}"
-                                      class="btn btn-link btn-primary btn-lg">
+                                      class="btn btn-primary d-flex align-items-center justify-content-center px-3 py-2">
                                         <i class="fa fa-edit"></i>
                                     </a>
                                     <form action="{{ route('kunjungan.destroy', $k->id) }}" 
@@ -84,7 +84,7 @@
                                           style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-link btn-danger">
+                                        <button class="btn btn-danger d-flex align-items-center justify-content-center px-3 py-2">
                                             <i class="fa fa-times"></i>
                                         </button>
                                     </form>

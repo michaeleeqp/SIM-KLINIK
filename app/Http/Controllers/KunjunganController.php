@@ -24,7 +24,7 @@ class KunjunganController extends Controller
     {
     return view('pages.pendaftaran_lama');
     }
-
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -81,5 +81,15 @@ class KunjunganController extends Controller
 
         return redirect()->route('list.pendaftaran')
                         ->with('success', 'Kunjungan berhasil dihapus');
+    }
+
+    public function ugd()
+    {
+        $data = \App\Models\Kunjungan::with('patient')
+            ->where('poli_tujuan', 'UGD') // ⬅ hanya ambil yang UGD
+            ->latest()
+            ->get();
+
+        return view('pages.ugd', compact('data'));
     }
 }

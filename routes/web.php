@@ -77,11 +77,12 @@ Route::get('/ugd', function () {
     return view('pages.ugd');
 });
 
+Route::get('/ugd', [KunjunganController::class, 'ugd'])->name('ugd.index');
+
 Route::get('/umum', function () {
-    return view('pages.ugd');
+    return view('pages.umum');
 });
 
 Route::get('/ranap', function () {
     return view('pages.ranap');
 });
-

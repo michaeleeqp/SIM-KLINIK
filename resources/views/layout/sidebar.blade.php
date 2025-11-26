@@ -114,17 +114,17 @@
                   </ul>                  
                 </div>
               </li>
-              {{-- <li class="nav-item">
+              <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#tables">
                   <i class="fas fa-table"></i>
-                  <p>Tables</p>
+                  <p>Farmasi</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="tables">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="tables/tables.html">
-                        <span class="sub-item">Basic Table</span>
+                        <span class="sub-item">Pemberian Obat</span>
                       </a>
                     </li>
                     <li>
@@ -135,7 +135,7 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
+              {{--<li class="nav-item">
                 <a data-bs-toggle="collapse" href="#maps">
                   <i class="fas fa-map-marker-alt"></i>
                   <p>Maps</p>

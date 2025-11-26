@@ -1,253 +1,239 @@
+@php
+    \Carbon\Carbon::setLocale('id');
+@endphp
+
 @extends('layout.app')
 
-@section('content') < div class = "container" > <div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Poliklinik</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a href="#">
-                    <i class="fas fa-layer-group"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Klinik Umum</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Form Klinik Umum</a>
-            </li>
-        </ul>
-    </div>
+@section('content')
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">UGD</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="/dashboard"><i class="icon-home"></i></a>
+                </li>
+                <li class="separator"><i class="icon-arrow-right"></i></li>
+                <li class="nav-item"><a href="#">Poliklinik</a></li>
+                <li class="separator"><i class="icon-arrow-right"></i></li>
+                <li class="nav-item"><a href="#">UGD</a></li>
+            </ul>
+        </div>
 
-    <div class="row">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
 
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Identitas Pasien</div>
-                </div>
+                    {{-- ================== TAB MENU ================== --}}
+                    <div class="card-header pb-0">
+                        <ul class="nav nav-tabs card-header-tabs d-flex gap-3">
 
-                <form id="formIdentitas">
-                    <input type="hidden" name="patient_id" id="patient_id">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#tab_ugd">
+                                    List Pendaftaran UGD
+                                </a>
+                            </li>
 
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-group">
-                                        <label for="no_rm">No RM</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="no_rm" name="no_rm"></div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Nama Pasien</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                name="nama_pasien"
-                                                id="nama_pasien"
-                                                readonly="readonly"></div>
-                                        </div>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#tab_asuhan">
+                                    Asuhan Medis
+                                </a>
+                            </li>
 
-                                        <div class="col-md-6 col-lg-4">
-                                            <div class="form-group">
-                                                <label for="tanggal_lahir">Tanggal Lahir</label>
-                                                <div class="input-group mb-3">
-                                                    <input
-                                                        type="date"
-                                                        class="form-control"
-                                                        id="tanggal_lahir"
-                                                        name="tanggal_lahir"
-                                                        max="{{ date('Y-m-d') }}"
-                                                        onchange="hitungUmur()"
-                                                        required="required"/>
-                                                    <span class="input-group-text" id="umur_display">Umur: -</span>
+                        </ul>
+                    </div>
+
+
+
+                    {{-- =============== TAB CONTENT ================= --}}
+                    <div class="card-body tab-content">
+
+                        {{-- ========== TAB 1 : LIST UGD ========== --}}
+                        <div class="tab-pane fade show active" id="tab_ugd">
+                            <div class="table-responsive mt-3">
+                                <table id="basic-datatables" class="display table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>No RM</th>
+                                            <th>Nama Pasien</th>
+                                            <th>Poli Tujuan</th>
+                                            <th>Tanggal Kunjungan</th>
+                                            <th>Jenis Bayar</th>
+                                            <th width="120">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($data as $item)
+                                        @php $umur = \Carbon\Carbon::parse($item->patient->tanggal_lahir)->age; @endphp
+                                        <tr>
+                                            <td>{{ $item->patient->no_rm }}</td>
+                                            <td>
+                                                <b>{{ $item->patient->nama_pasien }}</b><br>
+                                                Umur: {{ $umur }} Tahun
+                                            </td>
+                                            <td>{{ $item->poli_tujuan }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($item->tanggal_kunjungan)->translatedFormat('d F Y') }}</td>
+                                            <td>{{ $item->jenis_bayar }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a href="{{ route('kunjungan.edit', $item->id) }}" class="btn btn-primary btn-sm">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+
+                                                    <form action="{{ route('kunjungan.destroy', $item->id) }}" method="POST"
+                                                          onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                                        @csrf @method('DELETE')
+                                                        <button class="btn btn-danger btn-sm">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Jenis Kelamin</label>
-                                                <input
-                                                    type="text"
-                                                    class="form-control"
-                                                    name="jenis_kelamin"
-                                                    id="jenis_kelamin"
-                                                    readonly="readonly"></div>
-                                            </div>
-
-                                            <div class="col-md-6 col-lg-4">
-                                                <div class="form-group">
-                                                    <label>Golongan Darah</label>
-                                                    <input
-                                                        type="text"
-                                                        class="form-control"
-                                                        name="golongan_darah"
-                                                        id="golongan_darah"
-                                                        readonly="readonly"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
 
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="card-title">Asuhan Medis</div>
-                                </div>
 
-                                <div class="card-body">
 
-                                    <div class="form-group">
-                                        <label for="keluhan_utama">Keluhan Utama</label>
-                                        <input type="text" class="form-control" id="keluhan_utama" name="keluhan_utama"></div>
+                        {{-- ========== TAB 2 : ASUHAN MEDIS ========== --}}
+                        <div class="tab-pane fade" id="tab_asuhan">
+                            <form method="POST" action="#">
+                                @csrf
 
-                                        <div class="form-group">
-                                            <label for="riwayat_penyakit">Riwayat Penyakit</label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="riwayat_penyakit"
-                                                name="riwayat_penyakit"></div>
+                                <div class="row mt-3">
 
-                                            <div class="form-group">
-                                                <label for="riwayat_alergi">Riwayat Alergi</label>
-                                                <input
-                                                    type="text"
-                                                    class="form-control"
-                                                    id="riwayat_alergi"
-                                                    name="riwayat_alergi"></div>
+                                    {{-- DATA PASIEN --}}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="mb-3">
+                                            <label>No RM</label>
+                                            <input type="text" class="form-control" name="no_rm" readonly>
+                                        </div>
 
-                                                <div class="form-group">
-                                                    <label for="diagnosa_medis">Diagnosa Medis</label>
-                                                    <input
-                                                        type="text"
-                                                        class="form-control"
-                                                        id="diagnosa_medis"
-                                                        name="diagnosa_medis"></div>
+                                        <div class="mb-3">
+                                            <label>Nama Pasien</label>
+                                            <input type="text" class="form-control" name="nama_pasien" readonly>
+                                        </div>
 
-                                                    <div class="form-group">
-                                                        <label for="tindakan_terapi">Tindakan / Terapi</label>
-                                                        <input
-                                                            type="text"
-                                                            class="form-control"
-                                                            id="tindakan_terapi"
-                                                            name="tindakan_terapi"></div>
+                                        <div class="mb-3">
+                                            <label>Tanggal Lahir</label>
+                                            <div class="input-group">
+                                                <input type="date" class="form-control" id="tanggal_lahir" onchange="hitungUmur()" readonly>
+                                                <span class="input-group-text" id="umur_display">Umur: -</span>
+                                            </div>
+                                        </div>
 
-                                                        <div class="form-group">
-                                                            <label for="catatan_perawatan">Catatan Perawatan</label>
-                                                            <textarea
-                                                                class="form-control"
-                                                                id="catatan_perawatan"
-                                                                name="catatan_perawatan"
-                                                                rows="3"></textarea>
-                                                        </div>
+                                        <div class="mb-3">
+                                            <label>Jenis Kelamin</label>
+                                            <input type="text" class="form-control" name="jenis_kelamin" readonly>
+                                        </div>
 
-                                                        <br>
-                                                            <h5 class="fw-bold mb-3 border-bottom pb-2">Tanda-Tanda Vital</h5>
+                                        <div class="mb-3">
+                                            <label>Golongan Darah</label>
+                                            <input type="text" class="form-control" name="golongan_darah" readonly>
+                                        </div>
+                                    </div>
 
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-6 col-lg-3">
-                                                                    <div class="form-group">
-                                                                        <label for="tekanan_darah">Tekanan Darah (mm/Hg)</label>
-                                                                        <input
-                                                                            type="text"
-                                                                            class="form-control"
-                                                                            id="tekanan_darah"
-                                                                            name="tekanan_darah"
-                                                                            required="required"></div>
-                                                                    </div>
 
-                                                                    <div class="col-12 col-md-6 col-lg-3">
-                                                                        <div class="form-group">
-                                                                            <label for="nadi">Nadi (X/Menit)</label>
-                                                                            <input
-                                                                                type="number"
-                                                                                class="form-control"
-                                                                                id="nadi"
-                                                                                name="nadi"
-                                                                                required="required"></div>
-                                                                        </div>
+                                    {{-- ASUHAN MEDIS --}}
+                                    <div class="col-md-12 col-lg-8">
+                                        <div class="card border">
+                                            <div class="card-header"><b>Asuhan Medis</b></div>
+                                            <div class="card-body">
 
-                                                                        <div class="col-12 col-md-6 col-lg-3">
-                                                                            <div class="form-group">
-                                                                                <label for="suhu">Suhu (°C)</label>
-                                                                                <input
-                                                                                    type="number"
-                                                                                    step="0.1"
-                                                                                    class="form-control"
-                                                                                    id="suhu"
-                                                                                    name="suhu"
-                                                                                    required="required"></div>
-                                                                            </div>
-
-                                                                            <div class="col-12 col-md-6 col-lg-3">
-                                                                                <div class="form-group">
-                                                                                    <label for="respirasi">Respirasi (X/Menit)</label>
-                                                                                    <input
-                                                                                        type="number"
-                                                                                        class="form-control"
-                                                                                        id="respirasi"
-                                                                                        name="respirasi"
-                                                                                        required="required"></div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="card-action d-flex gap-2">
-                                                                            <button type="submit" class="btn btn-success">Submit</button>
-                                                                            <button type="reset" class="btn btn-danger">Cancel</button>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-                                                            </form>
-                                                        </div>
+                                                
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Keluhan Utama</label>
+                                                        <input type="text" class="form-control" name="keluhan_utama">
                                                     </div>
 
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Riwayat Penyakit</label>
+                                                        <input type="text" class="form-control" name="riwayat_penyakit">
+                                                    </div>
+
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Riwayat Alergi</label>
+                                                        <input type="text" class="form-control" name="riwayat_alergi">
+                                                    </div>
+
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Diagnosa Medis</label>
+                                                        <input type="text" class="form-control" name="diagnosa_medis">
+                                                    </div>
+
+                                                    <div class="col-md-12 mb-3">
+                                                        <label>Tindakan/Terapi</label>
+                                                        <input type="text" class="form-control" name="tindakan_terapi">
+                                                    </div>
+
+                                                    <div class="col-12 mb-3">
+                                                        <label>Catatan Perawatan</label>
+                                                        <textarea class="form-control" rows="3" name="catatan_perawatan"></textarea>
+                                                    </div>
+                                                
+
+                                                <hr class="my-4">
+
+                                                {{-- TANDA VITAL --}}
+                                                <h5 class="fw-bold mb-2">Tanda-Tanda Vital</h5>
+                                                <div class="row g-3">
+                                                    <div class="col-md-3">
+                                                        <label>Tekanan Darah</label>
+                                                        <input type="text" class="form-control" name="tekanan_darah">
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label>Nadi</label>
+                                                        <input type="number" class="form-control" name="nadi">
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label>Suhu (°C)</label>
+                                                        <input type="number" step="0.1" class="form-control" name="suhu">
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label>Respirasi</label>
+                                                        <input type="number" class="form-control" name="respirasi">
+                                                    </div>
                                                 </div>
+
+                                                
+
                                             </div>
                                         </div>
-                                        @endsection @push('scripts')
-                                        <script>
-                                            // Saya sesuaikan nama fungsinya agar cocok dengan "onchange" di HTML
-                                            function hitungUmur() {
-                                                const dateStr = document
-                                                    .getElementById('tanggal_lahir')
-                                                    .value;
-                                                const display = document.getElementById('umur_display');
+                                    </div>
 
-                                                if (!display) 
-                                                    return;
-                                                if (!dateStr) {
-                                                    display.textContent = 'Umur: -';
-                                                    return;
-                                                }
+                                </div>
+                                <div class="card-action d-flex gap-2">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                    <button type="reset" class="btn btn-danger">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
 
-                                                const tgl = new Date(dateStr);
-                                                const now = new Date();
+                    </div> {{-- END TAB CONTENT --}}
 
-                                                if (tgl > now) {
-                                                    display.textContent = 'Umur: Tanggal Tidak Valid';
-                                                    return;
-                                                }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
 
-                                                let y = now.getFullYear() - tgl.getFullYear();
-                                                let m = now.getMonth() - tgl.getMonth();
-                                                let d = now.getDate() - tgl.getDate();
 
-                                                if (d < 0) {
-                                                    m--;
-                                                    d += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-                                                }
-                                                if (m < 0) {
-                                                    y--;
-                                                    m += 12;
-                                                }
+@push('scripts')
+<script>
+    $("#basic-datatables").DataTable();
 
-                                                display.textContent = Umur: ${y}y ${m}m ${d}d;
-                                            }
-                                        </script>
-                                        @endpush
+    function hitungUmur(){
+        const tgl = document.getElementById("tanggal_lahir").value;
+        if(!tgl) return;
+        let umur = new Date().getFullYear() - new Date(tgl).getFullYear();
+        document.getElementById("umur_display").innerHTML = "Umur: "+umur+" Tahun";
+    }
+</script>
+@endpush

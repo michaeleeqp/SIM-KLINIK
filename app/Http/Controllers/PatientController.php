@@ -34,9 +34,11 @@ class PatientController extends Controller
         $kecamatan  = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/districts/{$patient->kabupaten_id}.json")->json();
         $desa       = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/villages/{$patient->kecamatan_id}.json")->json();
 
-        $lastKunjungan = Kunjungan::where('patient_id', $id)->latest()->first();
-        
-    return view('pages.edit_patient', compact('patient','provinsi','kabupaten','kecamatan','desa'));
+        // Ambil kunjungan terakhir pasien
+        $kunjunganTerakhir = Kunjungan::where('patient_id', $id)->latest()->first()?->tanggal_kunjungan;
+
+        return view('pages.edit_patient', compact(
+        'patient','provinsi','kabupaten','kecamatan','desa','kunjunganTerakhir'));
     }
 
     public function update(Request $request, $id)

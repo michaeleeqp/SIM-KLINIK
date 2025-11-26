@@ -4,7 +4,7 @@
 <div class="container"> <!-- PERBAIKAN: Spasi dihapus -->
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Pendaftaran</h3>
+            <h3 class="fw-bold mb-3">Pasien</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="#">
@@ -15,13 +15,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Pendaftaran</a>
+                    <a href="#">Master Pasien/a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Pasien baru</a>
+                    <a href="#">Edit Master Pasien</a>
                 </li>
             </ul>
         </div>
@@ -30,7 +30,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">Pendaftaran Pasien Baru</div>
+                        <div class="card-title">Edit Master Pasien</div>
                     </div>
                     
                     <form action="{{ route('patient.update', $patient->id) }}" method="POST">
@@ -47,6 +47,15 @@
                                         <input type="text" class="form-control" name="no_rm_display" value="{{ $patient->no_rm }}" disabled>
                                         <input type="hidden" name="no_rm" value="{{ $patient->no_rm }}">
                                     </div>
+
+                                    <div class="form-group">
+                                        <label>Kunjungan Terakhir</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ $kunjunganTerakhir ? \Carbon\Carbon::parse($kunjunganTerakhir)->translatedFormat('d M Y') : 'Belum pernah berkunjung' }}" 
+                                            disabled>
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="noktp">No KTP</label>
                                         <input type="text" class="form-control" maxlength="16" inputmode="numeric" id="noktp" name="no_ktp" value="{{ $patient->no_ktp }}"/>

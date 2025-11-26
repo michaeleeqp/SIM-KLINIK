@@ -49,7 +49,7 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Pasien Baru Perhari</p>
+                          <p class="card-category">Pasien Baru</p>
                           <h4 class="card-title">{{ $pasienBaruHariIni }}</h4>
                         </div>
                       </div>
@@ -70,8 +70,8 @@
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
-                          <p class="card-category">Sales</p>
-                          <h4 class="card-title"></h4>
+                          <p class="card-category">Pemberian Obat</p>
+                          <h4 class="card-title">0</h4>
                         </div>
                       </div>
                     </div>

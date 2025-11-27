@@ -24,22 +24,30 @@ class PatientController extends Controller
         return view('pages.pendaftaran_baru', compact('lastNoRm'));
     }
 
-    public function edit($id)
+        public function edit($id)
     {
         $patient = Patient::findOrFail($id);
 
-        // API wilayah Indonesia
-        $provinsi   = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json")->json();
-        $kabupaten  = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/regencies/{$patient->provinsi_id}.json")->json();
-        $kecamatan  = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/districts/{$patient->kabupaten_id}.json")->json();
-        $desa       = Http::get("https://emsifa.github.io/api-wilayah-indonesia/api/villages/{$patient->kecamatan_id}.json")->json();
+        try {
+            $provinsi   = Http::timeout(5)->get("https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json")->json();
+            $kabupaten  = Http::timeout(5)->get("https://emsifa.github.io/api-wilayah-indonesia/api/regencies/{$patient->provinsi_id}.json")->json();
+            $kecamatan  = Http::timeout(5)->get("https://emsifa.github.io/api-wilayah-indonesia/api/districts/{$patient->kabupaten_id}.json")->json();
+            $desa       = Http::timeout(5)->get("https://emsifa.github.io/api-wilayah-indonesia/api/villages/{$patient->kecamatan_id}.json")->json();
+        } catch (\Exception $e) {
+            // fallback agar halaman tetap terbuka
+            $provinsi = $kabupaten = $kecamatan = $desa = [];
+            
+            return back()->with('error', 'Gagal memuat wilayah! Pastikan koneksi internet aktif.');
+        }
 
         // Ambil kunjungan terakhir pasien
         $kunjunganTerakhir = Kunjungan::where('patient_id', $id)->latest()->first()?->tanggal_kunjungan;
 
         return view('pages.edit_patient', compact(
-        'patient','provinsi','kabupaten','kecamatan','desa','kunjunganTerakhir'));
+            'patient','provinsi','kabupaten','kecamatan','desa','kunjunganTerakhir'
+        ));
     }
+
 
     public function update(Request $request, $id)
     {

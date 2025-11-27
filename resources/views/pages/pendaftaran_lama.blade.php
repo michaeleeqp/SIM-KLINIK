@@ -176,11 +176,12 @@
                   </div>
 
                   <div class="form-group">
-                    <label>Jadwal</label>
-                    <select class="form-control" name="jadwal_dokter" required>
-                      <option value="" disabled selected hidden>Pilih Jadwal</option>
-                      <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
-                      <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
+                    <label for="jadwal">Dokter</label>
+                    <select name="dokter_id" class="form-control" required>
+                        <option value="">-- Pilih Dokter --</option>
+                        @foreach($dokters as $d)
+                            <option value="{{ $d->id }}">{{ $d->nama_dokter }} — ({{ $d->jadwal_praktek }})</option>
+                        @endforeach
                     </select>
                   </div>
 
@@ -206,7 +207,7 @@
 
                   <div class="form-group" id="no_asuransi_group" style="display:none;">
                     <label>No Asuransi</label>
-                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi">
+                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi" maxlength="13">
                   </div>
                 </div>
 

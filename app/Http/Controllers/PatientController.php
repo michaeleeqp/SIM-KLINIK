@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use App\Models\Kunjungan;
+use App\Models\Dokter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,9 @@ class PatientController extends Controller
         $lastPatient = Patient::orderBy('no_rm', 'desc')->first();
         $lastNoRm = $lastPatient ? $lastPatient->no_rm : null;
 
-        return view('pages.pendaftaran_baru', compact('lastNoRm'));
+        $dokters = Dokter::all();
+
+        return view('pages.pendaftaran_baru', compact('lastNoRm','dokters'));
     }
 
         public function edit($id)
@@ -120,7 +123,7 @@ class PatientController extends Controller
                 'keterangan_rujukan'=>'required|string',
                 'tanggal_kunjungan'=>'required|date',
                 'poli_tujuan'=>'required|string',
-                'jadwal_dokter'=>'required|string',
+                'dokter_id'=>'required|string',
                 'kunjungan'=>'required|string',
                 'jenis_bayar'=>'required|string',
                 'pj_nama'=>'nullable|string',

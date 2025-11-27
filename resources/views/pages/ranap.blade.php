@@ -247,7 +247,16 @@
                                                     m += 12;
                                                 }
 
-                                                display.textContent = Umur: ${y}y ${m}m ${d}d;
+                                                display.textContent = Umur : $ {
+                                                    y
+                                                }
+                                                y $ {
+                                                    m
                                             }
+                                            m $ {
+                                                d
+                                        }
+                                        d;
+                                    }
                                         </script>
                                         @endpush

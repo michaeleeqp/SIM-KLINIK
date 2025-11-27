@@ -26,88 +26,88 @@
         <div class="row">
             <div class="col-md-8 mx-auto">
 
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Form Edit Kunjungan</h4>
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Form Edit Kunjungan</h4>
+                        </div>
+
+                        <div class="card-body">
+
+                            <form action="{{ route('kunjungan.update', $kunjungan->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                {{-- DATA PASIEN (READONLY) --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nama Pasien</label>
+                                    <input type="text" class="form-control" value="{{ $kunjungan->patient->nama_pasien }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">No Rekam Medis</label>
+                                    <input type="text" class="form-control" value="{{ $kunjungan->patient->no_rm }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tanggal Lahir & Umur</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        value="{{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->locale('id')->translatedFormat('d F Y') }} 
+                                        {{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->age }} Tahun" 
+                                        readonly
+                                    >
+                                </div>
+
+                                <hr>
+
+                                {{-- POLI TUJUAN --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Poli Tujuan</label>
+                                    <select name="poli_tujuan" class="form-select" required>
+                                        <option value="">-- Pilih Poli --</option>
+                                        <option value="UGD" {{ $kunjungan->poli_tujuan == 'UGD' ? 'selected' : '' }}>UGD</option>
+                                        <option value="Klinik Umum" {{ $kunjungan->poli_tujuan == 'Klinik Umum' ? 'selected' : '' }}>Klinik Umum</option>
+                                        <option value="Rawat Inap" {{ $kunjungan->poli_tujuan == 'Rawat Inap' ? 'selected' : '' }}>Rawat Inap</option>
+                                    </select>
+                                </div>
+
+                                {{-- TANGGAL KUNJUNGAN --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tanggal Kunjungan</label>
+                                    <input type="date" name="tanggal_kunjungan" class="form-control"
+                                        value="{{ $kunjungan->tanggal_kunjungan }}" required>
+                                </div>
+
+                                {{-- JENIS PEMBAYARAN --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Jenis Pembayaran</label>
+                                    <select name="jenis_bayar" id="jenis_bayar" class="form-select" required>
+                                        <option value="">-- Pilih Pembayaran --</option>
+                                        <option value="Umum" {{ $kunjungan->jenis_bayar == 'Umum' ? 'selected' : '' }}>Umum</option>
+                                        <option value="BPJS PBI" {{ $kunjungan->jenis_bayar == 'BPJS PBI' ? 'selected' : '' }}>BPJS PBI</option>
+                                        <option value="BPJS NON PBI" {{ $kunjungan->jenis_bayar == 'BPJS NON PBI' ? 'selected' : '' }}>BPJS NON PBI</option>
+                                        <option value="JAMKESDA" {{ $kunjungan->jenis_bayar == 'JAMKESDA' ? 'selected' : '' }}>JAMKESDA</option>
+                                    </select>
+                                </div>
+
+                                {{-- Input No Asuransi --}}
+                                <div class="mb-3" id="no_asuransi_group">
+                                    <label class="form-label fw-bold">No Asuransi</label>
+                                    <input type="text" id="no_asuransi" name="no_asuransi" class="form-control"
+                                        value="{{ $kunjungan->no_asuransi }}">
+                                    <small class="text-muted">BPJS wajib 13 digit angka</small>
+                                </div>
+
+                                <div class="text-end">
+                                <button type="submit" class="btn btn-success">Submit</button>  
+                                <a href="{{ route('list.pendaftaran') }}" class="btn btn-danger">Cancel</a>                                
+                                </div>
+
+                            </form>
+
+                        </div>
                     </div>
-
-                    <div class="card-body">
-
-                        <form action="{{ route('kunjungan.update', $kunjungan->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
-                            {{-- DATA PASIEN (READONLY) --}}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nama Pasien</label>
-                                <input type="text" class="form-control" value="{{ $kunjungan->patient->nama_pasien }}" readonly>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">No Rekam Medis</label>
-                                <input type="text" class="form-control" value="{{ $kunjungan->patient->no_rm }}" readonly>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Tanggal Lahir & Umur</label>
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    value="{{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->locale('id')->translatedFormat('d F Y') }} 
-                                    {{ \Carbon\Carbon::parse($kunjungan->patient->tanggal_lahir)->age }} Tahun" 
-                                    readonly
-                                >
-                            </div>
-
-                            <hr>
-
-                            {{-- POLI TUJUAN --}}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Poli Tujuan</label>
-                                <select name="poli_tujuan" class="form-select" required>
-                                    <option value="">-- Pilih Poli --</option>
-                                    <option value="UGD" {{ $kunjungan->poli_tujuan == 'UGD' ? 'selected' : '' }}>UGD</option>
-                                    <option value="Klinik Umum" {{ $kunjungan->poli_tujuan == 'Klinik Umum' ? 'selected' : '' }}>Klinik Umum</option>
-                                    <option value="Rawat Inap" {{ $kunjungan->poli_tujuan == 'Rawat Inap' ? 'selected' : '' }}>Rawat Inap</option>
-                                </select>
-                            </div>
-
-                            {{-- TANGGAL KUNJUNGAN --}}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Tanggal Kunjungan</label>
-                                <input type="date" name="tanggal_kunjungan" class="form-control"
-                                       value="{{ $kunjungan->tanggal_kunjungan }}" required>
-                            </div>
-
-                            {{-- JENIS PEMBAYARAN --}}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Jenis Pembayaran</label>
-                                <select name="jenis_bayar" id="jenis_bayar" class="form-select" required>
-                                    <option value="">-- Pilih Pembayaran --</option>
-                                    <option value="Umum" {{ $kunjungan->jenis_bayar == 'Umum' ? 'selected' : '' }}>Umum</option>
-                                    <option value="BPJS PBI" {{ $kunjungan->jenis_bayar == 'BPJS PBI' ? 'selected' : '' }}>BPJS PBI</option>
-                                    <option value="BPJS NON PBI" {{ $kunjungan->jenis_bayar == 'BPJS NON PBI' ? 'selected' : '' }}>BPJS NON PBI</option>
-                                    <option value="JAMKESDA" {{ $kunjungan->jenis_bayar == 'JAMKESDA' ? 'selected' : '' }}>JAMKESDA</option>
-                                </select>
-                            </div>
-
-                            {{-- Input No Asuransi --}}
-                            <div class="mb-3" id="no_asuransi_group">
-                                <label class="form-label fw-bold">No Asuransi</label>
-                                <input type="text" id="no_asuransi" name="no_asuransi" class="form-control"
-                                      value="{{ $kunjungan->no_asuransi }}">
-                                <small class="text-muted">BPJS wajib 13 digit angka</small>
-                            </div>
-
-                            <div class="text-end">
-                              <button type="submit" class="btn btn-success">Submit</button>  
-                              <a href="{{ route('list.pendaftaran') }}" class="btn btn-danger">Cancel</a>                                
-                            </div>
-
-                        </form>
-
-                    </div>
-                </div>
 
             </div>
         </div>

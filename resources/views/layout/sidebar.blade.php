@@ -1,248 +1,164 @@
 @php
-// Cek apakah URL saat ini berada di bawah rute 'pendaftaran'
-    $isPendaftaranActive = request()->is('pendaftaran/*') || request()->is('list/pendaftaran');
+    // LOGIKA ACTIVE STATE
+    // -------------------
+    
+    // 1. Dashboard
+    $activeDashboard = request()->is('dashboard');
+
+    // 2. Pendaftaran (Parent)
+    // Aktif jika url: pendaftaran/lama, pendaftaran/baru, atau list/pendaftaran
+    $activePendaftaran = request()->is('pendaftaran/*') || request()->is('list/pendaftaran');
+
+    // 3. Pasien (Parent)
+    // Aktif jika url dimulai dengan master/pasien
+    $activePasien = request()->is('master/pasien*');
+
+    // 4. Poliklinik (Parent)
+    // Aktif jika url dimulai dengan ugd, umum, atau ranap
+    $activePoli = request()->is('ugd*') || request()->is('umum*') || request()->is('ranap*');
+
+    // 5. Farmasi (Parent) - Sesuaikan dengan route asli Anda nanti
+    $activeFarmasi = request()->is('tables*'); 
 @endphp
 
 <div class="sidebar" data-background-color="dark">
-        <div class="sidebar-logo">
-          <!-- Logo Header -->
-          <div class="logo-header" data-background-color="dark">
+    <div class="sidebar-logo">
+        <div class="logo-header" data-background-color="dark">
             <a href="/dashboard" class="logo">
-              <img
-                src="{{asset('template/assets/img/kaiadmin/logo.png')}}"
-                alt="navbar brand"
-                class="navbar-brand"
-                height="40"
-              />
+                <img src="{{asset('template/assets/img/kaiadmin/logo.png')}}" alt="navbar brand" class="navbar-brand" height="40" />
             </a>
             <div class="nav-toggle">
-              <button class="btn btn-toggle toggle-sidebar">
-                <i class="gg-menu-right"></i>
-              </button>
-              <button class="btn btn-toggle sidenav-toggler">
-                <i class="gg-menu-left"></i>
-              </button>
+                <button class="btn btn-toggle toggle-sidebar">
+                    <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                    <i class="gg-menu-left"></i>
+                </button>
             </div>
             <button class="topbar-toggler more">
-              <i class="gg-more-vertical-alt"></i>
+                <i class="gg-more-vertical-alt"></i>
             </button>
-          </div>
-          <!-- End Logo Header -->
         </div>
-        <div class="sidebar-wrapper scrollbar scrollbar-inner">
-          <div class="sidebar-content">
+        </div>
+    
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item @if(request()->is('dashboard')) active @endif">
-                <a
-                  href="/dashboard"
-                >
-                  <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
-                </a>
-              </li>
-              <li class="nav-section">
-                <span class="sidebar-mini-icon">
-                  <i class="fa fa-ellipsis-h"></i>
-                </span>
-                <h4 class="text-section">Menu</h4>
-              </li>
-              <li class="nav-item ">
-                <a data-bs-toggle="collapse" href="#base">
-                  <i class="fas fa-layer-group"></i>
-                  <p>Pendaftaran</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="base">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="/pendaftaran/lama">
-                        <span class="sub-item">Pasien Lama</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/pendaftaran/baru">
-                        <span class="sub-item">Pasien Baru</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/list/pendaftaran">
-                        <span class="sub-item">List Pendaftaran</span>
-                      </a>
-                    </li>         
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item @if($isPendaftaranActive) active @endif">
-                <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                  <i class="fas fa-th-list"></i>
-                  <p>Pasien</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="sidebarLayouts">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="/master/pasien">
-                        <span class="sub-item">Master pasien</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#forms">
-                  <i class="fas fa-pen-square"></i>
-                  <p>Poliklinik</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="forms">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="/ugd">
-                        <span class="sub-item">UGD</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/umum">
-                        <span class="sub-item">Klinik Umum</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/ranap">
-                        <span class="sub-item">Rawat Inap</span>
-                      </a>
-                    </li>
-                  </ul>                  
-                </div>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#tables">
-                  <i class="fas fa-table"></i>
-                  <p>Farmasi</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="tables">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="tables/tables.html">
-                        <span class="sub-item">Pemberian Obat</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="tables/datatables.html">
-                        <span class="sub-item">Datatables</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              {{--<li class="nav-item">
-                <a data-bs-toggle="collapse" href="#maps">
-                  <i class="fas fa-map-marker-alt"></i>
-                  <p>Maps</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="maps">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="maps/googlemaps.html">
-                        <span class="sub-item">Google Maps</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="maps/jsvectormap.html">
-                        <span class="sub-item">Jsvectormap</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#charts">
-                  <i class="far fa-chart-bar"></i>
-                  <p>Charts</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="charts">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="charts/charts.html">
-                        <span class="sub-item">Chart Js</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="charts/sparkline.html">
-                        <span class="sub-item">Sparkline</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a href="widgets.html">
-                  <i class="fas fa-desktop"></i>
-                  <p>Widgets</p>
-                  <span class="badge badge-success">4</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../../documentation/index.html">
-                  <i class="fas fa-file"></i>
-                  <p>Documentation</p>
-                  <span class="badge badge-secondary">1</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#submenu">
-                  <i class="fas fa-bars"></i>
-                  <p>Menu Levels</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="submenu">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav1">
-                        <span class="sub-item">Level 1</span>
+                
+                {{-- DASHBOARD --}}
+                <li class="nav-item {{ $activeDashboard ? 'active' : '' }}">
+                    <a href="/dashboard">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Menu</h4>
+                </li>
+
+                {{-- PENDAFTARAN --}}
+                <li class="nav-item {{ $activePendaftaran ? 'active submenu' : '' }}">
+                    <a data-bs-toggle="collapse" href="#base">
+                        <i class="fas fa-layer-group"></i>
+                        <p>Pendaftaran</p>
                         <span class="caret"></span>
-                      </a>
-                      <div class="collapse" id="subnav1">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="#">
-                              <span class="sub-item">Level 2</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              <span class="sub-item">Level 2</span>
-                            </a>
-                          </li>
+                    </a>
+                    {{-- Tambahkan class 'show' agar menu tetap terbuka saat aktif --}}
+                    <div class="collapse {{ $activePendaftaran ? 'show' : '' }}" id="base">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->is('pendaftaran/lama*') ? 'active' : '' }}">
+                                <a href="/pendaftaran/lama">
+                                    <span class="sub-item">Pasien Lama</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->is('pendaftaran/baru*') ? 'active' : '' }}">
+                                <a href="/pendaftaran/baru">
+                                    <span class="sub-item">Pasien Baru</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->is('list/pendaftaran*') ? 'active' : '' }}">
+                                <a href="/list/pendaftaran">
+                                    <span class="sub-item">List Pendaftaran</span>
+                                </a>
+                            </li>
                         </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav2">
-                        <span class="sub-item">Level 1</span>
+                    </div>
+                </li>
+
+                {{-- PASIEN --}}
+                <li class="nav-item {{ $activePasien ? 'active submenu' : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                        <i class="fas fa-th-list"></i>
+                        <p>Pasien</p>
                         <span class="caret"></span>
-                      </a>
-                      <div class="collapse" id="subnav2">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="#">
-                              <span class="sub-item">Level 2</span>
-                            </a>
-                          </li>
+                    </a>
+                    <div class="collapse {{ $activePasien ? 'show' : '' }}" id="sidebarLayouts">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->is('master/pasien*') ? 'active' : '' }}">
+                                <a href="/master/pasien">
+                                    <span class="sub-item">Master pasien</span>
+                                </a>
+                            </li>
                         </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Level 1</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li> --}}
+                    </div>
+                </li>
+
+                {{-- POLIKLINIK --}}
+                <li class="nav-item {{ $activePoli ? 'active submenu' : '' }}">
+                    <a data-bs-toggle="collapse" href="#forms">
+                        <i class="fas fa-pen-square"></i>
+                        <p>Poliklinik</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ $activePoli ? 'show' : '' }}" id="forms">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->is('ugd*') ? 'active' : '' }}">
+                                <a href="/ugd">
+                                    <span class="sub-item">UGD</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->is('umum*') ? 'active' : '' }}">
+                                <a href="/umum">
+                                    <span class="sub-item">Klinik Umum</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->is('ranap*') ? 'active' : '' }}">
+                                <a href="/ranap">
+                                    <span class="sub-item">Rawat Inap</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                {{-- FARMASI --}}
+                <li class="nav-item {{ $activeFarmasi ? 'active submenu' : '' }}">
+                    <a data-bs-toggle="collapse" href="#tables">
+                        <i class="fas fa-table"></i>
+                        <p>Farmasi</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse {{ $activeFarmasi ? 'show' : '' }}" id="tables">
+                        <ul class="nav nav-collapse">
+                            <li class="{{ request()->is('tables/tables.html') ? 'active' : '' }}">
+                                <a href="tables/tables.html">
+                                    <span class="sub-item">Pemberian Obat</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->is('tables/datatables.html') ? 'active' : '' }}">
+                                <a href="tables/datatables.html">
+                                    <span class="sub-item">Datatables</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
-          </div>
         </div>
-      </div>
+    </div>
+</div>

@@ -19,15 +19,17 @@ class FarmasiController extends Controller
         // rawat_inap that already have a discharge_date (those who went home).
         // Eager-load prescriptionItems for display and editing.
         $query = Asuhan::with(['patient', 'user', 'prescriptionItems'])
-            ->where(function($q) {
+            // only show prescriptions that have not been collected yet
+            ->whereNull('resep_collected_at')
+            ->where(function ($q) {
                 $q->whereRaw("LOWER(poli_tujuan) != 'rawat_inap'")
-                  ->orWhereNull('discharge_date');
+                    ->orWhereNull('discharge_date');
             });
 
         if ($q) {
-            $query->whereHas('patient', function($p) use ($q) {
+            $query->whereHas('patient', function ($p) use ($q) {
                 $p->where('nama_pasien', 'like', "%{$q}%")
-                  ->orWhere('no_rm', 'like', "%{$q}%");
+                    ->orWhere('no_rm', 'like', "%{$q}%");
             });
         }
 
@@ -44,6 +46,15 @@ class FarmasiController extends Controller
     {
         $asuhan->resep_collected_at = now();
         $asuhan->save();
+
+        // If this is an AJAX request, return JSON so frontend can update without reload
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Resep pasien telah ditandai sebagai sudah diambil.',
+                'id' => $asuhan->id,
+            ]);
+        }
 
         return back()->with('success', 'Resep pasien telah ditandai sebagai sudah diambil.');
     }
@@ -87,28 +98,28 @@ class FarmasiController extends Controller
     {
         // DEBUG: Log raw input
         Log::info('Raw items input:', ['items' => $request->input('items')]);
-        
+
         // Filter out empty rows from items array
         $rawItems = $request->input('items', []);
         $filtered = [];
-        
+
         if (is_array($rawItems)) {
             foreach ($rawItems as $index => $it) {
                 if (!is_array($it)) {
                     Log::info("Item $index is not array", ['item' => $it]);
                     continue;
                 }
-                
+
                 // Check if row has meaningful data
                 $hasName = isset($it['name']) && is_string($it['name']) && trim($it['name']) !== '';
                 $hasId = isset($it['id']) && trim($it['id']) !== '' && trim($it['id']) !== '0';
-                
+
                 Log::info("Item $index check", [
                     'item' => $it,
                     'hasName' => $hasName,
                     'hasId' => $hasId
                 ]);
-                
+
                 // Only include rows that have either name or medicine id
                 if ($hasName || $hasId) {
                     // Ensure name is filled - get from medicine if not provided
@@ -118,24 +129,24 @@ class FarmasiController extends Controller
                             $it['name'] = $medicine->name;
                         }
                     }
-                    
+
                     // Ensure qty has a value
                     if (!isset($it['qty']) || trim($it['qty']) === '') {
                         $it['qty'] = 1;
                     }
-                    
+
                     $filtered[] = $it;
                 }
             }
         }
-        
+
         Log::info('Filtered items:', ['filtered' => $filtered]);
-        
+
         // If no valid items, return with message
         if (empty($filtered)) {
             return back()->with('error', 'Tidak ada obat yang diinput. Silakan tambahkan minimal 1 obat.');
         }
-        
+
         // Overwrite request items with filtered ones
         $request->merge(['items' => $filtered]);
 
@@ -174,7 +185,7 @@ class FarmasiController extends Controller
 
                 $price = isset($it['price']) ? floatval($it['price']) : 0;
                 $qty = isset($it['qty']) ? intval($it['qty']) : 1;
-                
+
                 PrescriptionItem::create([
                     'asuhan_id' => $asuhan->id,
                     'medicine_id' => $medicineId,
@@ -184,14 +195,13 @@ class FarmasiController extends Controller
                     'qty' => $qty,
                     'note' => $it['note'] ?? null,
                 ]);
-                
+
                 // Calculate total
                 $calculatedTotal += ($price * $qty);
-                
             } catch (\Throwable $e) {
                 Log::error('Failed to create PrescriptionItem', [
-                    'error' => $e->getMessage(), 
-                    'item' => $it, 
+                    'error' => $e->getMessage(),
+                    'item' => $it,
                     'asuhan_id' => $asuhan->id
                 ]);
                 return back()->with('error', 'Terjadi kesalahan saat menyimpan item resep: ' . $e->getMessage());

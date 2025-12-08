@@ -94,9 +94,9 @@
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary btn-open-dispense" data-id="{{ $p->id }}">Input Obat</button>
                                 
-                                <form method="POST" action="{{ route('farmasi.prescriptions.collect', $p) }}" style="display:inline-block">
+                                <form method="POST" action="{{ route('farmasi.prescriptions.collect', $p) }}" class="form-collect" style="display:inline-block">
                                     @csrf
-                                    <button class="btn btn-sm btn-success">Tandai Diambil</button>
+                                    <button type="submit" class="btn btn-sm btn-success btn-collect">Tandai Diambil</button>
                                 </form>
 
                                 @php
@@ -164,6 +164,64 @@
 <script>
 const medicines = @json($medicines ?? []);
 let rowCounters = {}; // Track row indices per form
+
+// Handle AJAX collect: submit collect forms via fetch and remove row on success
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (!form || !form.classList.contains('form-collect')) return;
+    e.preventDefault();
+
+    const submitBtn = form.querySelector('.btn-collect');
+    if (submitBtn) submitBtn.disabled = true;
+
+    const tr = form.closest('tr');
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(resp => resp.json().catch(() => ({ success: false, message: 'Response not JSON' })))
+    .then(json => {
+        if (json && json.success) {
+            // remove the row from table
+            if (tr) tr.remove();
+
+            // optional: show alert message at top
+            showTemporaryAlert(json.message || 'Diambil', 'success');
+        } else {
+            const msg = (json && json.message) ? json.message : 'Gagal menandai diambil';
+            showTemporaryAlert(msg, 'danger');
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    })
+    .catch(err => {
+        console.error('Collect error', err);
+        showTemporaryAlert('Terjadi kesalahan jaringan', 'danger');
+        if (submitBtn) submitBtn.disabled = false;
+    });
+});
+
+function showTemporaryAlert(message, type = 'success') {
+    // create bootstrap alert and append to top of page (under header)
+    const container = document.querySelector('.page-inner') || document.body;
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show`;
+    div.role = 'alert';
+    div.innerHTML = `<strong>${type === 'success' ? 'Sukses' : 'Error'}!</strong> ${message}`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-close';
+    btn.setAttribute('data-bs-dismiss', 'alert');
+    btn.setAttribute('aria-label', 'Close');
+    div.appendChild(btn);
+    container.prepend(div);
+    // remove after 4s
+    setTimeout(() => { try { div.remove(); } catch(e){} }, 4000);
+}
 
 function buildOptions() {
     if (!medicines || medicines.length === 0) return '<option value="">-- Tidak ada obat --</option>';

@@ -257,7 +257,7 @@
                     height="80"
                 /> 
             </div>
-            <h1>SIM KLINIK</h1>
+            <h1>RME KLINIK</h1>
             <p>Sistem Informasi Manajemen Klinik. Silakan masuk untuk mengakses dashboard layanan kesehatan.</p>
             <button class="ghost">Info Layanan</button>
         </div>

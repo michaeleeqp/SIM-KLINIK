@@ -501,7 +501,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initialDesa = null;
   });
 
- // Realtime update untuk jadwal UGD - dr. Prabowo
+/* =====================================================
+   ============  SCRIPT REALTIME PRABOWO  ===============
+   ===================================================== */
+
 (function(){
   const prabowoOption = document.getElementById('jadwal_prabowo_option');
 
@@ -515,18 +518,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const now = new Date();
       const realtime = formatTime(now);
 
-      // ubah text di dropdown
       prabowoOption.textContent = `UGD - dr. Prabowo - ${realtime}`;
-
-      // ubah value agar ikut tersimpan ke database
       prabowoOption.value = `UGD - dr. Prabowo - ${realtime}`;
     }
 
-    updatePrabowo();             // tampilkan pertama kali
-    setInterval(updatePrabowo, 1000); // update setiap detik
+    updatePrabowo();
+    setInterval(updatePrabowo, 1000);
   }
 })();
-
 });
 </script>
 @endpush

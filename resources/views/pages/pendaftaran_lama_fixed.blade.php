@@ -176,7 +176,7 @@
                       <option value="" disabled selected hidden>Pilih Jadwal</option>
                       <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
                       <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
-                      <option value="ugd-dr-prabowo" id="jadwal_prabowo_option">UGD - dr. Prabowo - memuat...</option>
+                      <option value="UGD - dr. Prabowo - 00.00-24.00">UGD - dr. Prabowo - 00.00 - 24.00</option>
                     </select>
                   </div>
 

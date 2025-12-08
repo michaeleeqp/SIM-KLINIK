@@ -195,7 +195,7 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="nadi">Nadi (X/Menit)</label>
-                                        <input type="number" class="form-control" id="nadi" name="nadi" placeholder="80" required>
+                                        <input type="number" class="form-control" id="nadi" name="nadi" placeholder="80" required inputmode="numeric" pattern="\d*" min="1" max="300">
                                     </div>
                                 </div>
 

@@ -372,8 +372,7 @@
                               class="form-control"
                               name="no_asuransi"
                               id="no_asuransi"
-                              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                              maxlenght="13"
+                              oninput="cleanAndLimitAsuransi(event)"
                             />
                           </div>
                         </div>

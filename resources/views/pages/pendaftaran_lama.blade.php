@@ -201,7 +201,7 @@
 
                   <div class="form-group" id="no_asuransi_group" style="display:none;">
                     <label>No Asuransi</label>
-                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi">
+                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi"  maxlength="13">
                   </div>
                 </div>
 

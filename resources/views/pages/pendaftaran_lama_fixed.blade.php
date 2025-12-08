@@ -171,14 +171,19 @@
                   </div>
 
                   <div class="form-group">
-                    <label>Jadwal</label>
-                    <select class="form-select" name="jadwal_dokter" required>
-                      <option value="" disabled selected hidden>Pilih Jadwal</option>
-                      <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
-                      <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
-                      <option value="UGD - dr. Prabowo - 00.00-24.00">UGD - dr. Prabowo - 00.00 - 24.00</option>
-                    </select>
-                  </div>
+  <label>Jadwal</label>
+  <select class="form-select" name="jadwal_dokter" required>
+    <option value="" disabled selected hidden>Pilih Jadwal</option>
+    <option value="Klinik Umum - dr. Mikel - 07.00-13.00">Klinik Umum - dr. Mikel - 07.00-13.00</option>
+    <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
+
+    <!-- ✅ Ditambahkan untuk realtime -->
+    <option id="jadwal_prabowo_option" value="">
+      UGD - dr. Prabowo - memuat...
+    </option>
+  </select>
+</div>
+
 
                   <div class="form-group">
                     <label>Kunjungan</label>
@@ -202,7 +207,7 @@
 
                   <div class="form-group" id="no_asuransi_group" style="display:none;">
                     <label>No Asuransi</label>
-                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi">
+                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi"  maxlength="13">
                   </div>
                 </div>
 
@@ -496,22 +501,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initialDesa = null;
   });
 
-  // Realtime update untuk jadwal UGD - dr. Prabowo
-  (function(){
-    const prabowoOption = document.getElementById('jadwal_prabowo_option');
-    function two(n){ return n.toString().padStart(2,'0'); }
-    function formatTime(now){
-      return `${two(now.getHours())}:${two(now.getMinutes())}:${two(now.getSeconds())}`;
+/* =====================================================
+   ============  SCRIPT REALTIME PRABOWO  ===============
+   ===================================================== */
+
+(function(){
+  const prabowoOption = document.getElementById('jadwal_prabowo_option');
+
+  function two(n){ return n.toString().padStart(2,'0'); }
+  function formatTime(now){
+    return `${two(now.getHours())}:${two(now.getMinutes())}:${two(now.getSeconds())}`;
+  }
+
+  if (prabowoOption) {
+    function updatePrabowo(){
+      const now = new Date();
+      const realtime = formatTime(now);
+
+      prabowoOption.textContent = `UGD - dr. Prabowo - ${realtime}`;
+      prabowoOption.value = `UGD - dr. Prabowo - ${realtime}`;
     }
-    if (prabowoOption) {
-      function updatePrabowo(){
-        const now = new Date();
-        prabowoOption.textContent = `UGD - dr. Prabowo - ${formatTime(now)}`;
-      }
-      updatePrabowo();
-      setInterval(updatePrabowo, 1000);
-    }
-  })();
+
+    updatePrabowo();
+    setInterval(updatePrabowo, 1000);
+  }
+})();
 });
 </script>
 @endpush

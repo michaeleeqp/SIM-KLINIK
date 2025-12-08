@@ -118,22 +118,22 @@
 
                   <div class="form-group">
                     <label>Provinsi</label>
-                    <select id="provinsi" class="form-select" readonly></select>
+                    <select id="provinsi" name="provinsi_id" class="form-select"></select>
                   </div>
 
                   <div class="form-group">
                     <label>Kabupaten</label>
-                    <select id="kabupaten" class="form-select" readonly></select>
+                    <select id="kabupaten" name="kabupaten_id" class="form-select"></select>
                   </div>
 
                   <div class="form-group">
                     <label>Kecamatan</label>
-                    <select id="kecamatan" class="form-select" readonly></select>
+                    <select id="kecamatan" name="kecamatan_id" class="form-select"></select>
                   </div>
 
                   <div class="form-group">
                     <label>Desa</label>
-                    <select id="desa" class="form-select" readonly></select>
+                    <select id="desa" name="desa_id" class="form-select"></select>
                   </div>
 
                   <div class="form-group">
@@ -254,6 +254,12 @@
 /* ============ KONFIGURASI ============ */
 const BASE_URL_WILAYAH = 'https://www.emsifa.com/api-wilayah-indonesia/api/';
 
+// Variabel untuk menyimpan nilai wilayah dari pasien yang dicari
+let initialProv = null;
+let initialKab = null;
+let initialKec = null;
+let initialDesa = null;
+
 /* ======= HELPERS ======= */
 function onlyDigitsAndLimit(el, maxLen) {
   el.value = el.value.replace(/[^0-9]/g, '').slice(0, maxLen || 999);
@@ -291,20 +297,49 @@ function hitungUmurFromInput(dateStr) {
   display.textContent = `Umur: ${y}y ${m}m ${d}d`;
 }
 
-/* ======= SET DROPDOWN VALUE OTOMATIS ======= */
-async function setSelectValue(selectId, value) {
-  if (!value) return;
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
+/* ======= FETCH DAN FILL DROPDOWN ======= */
+async function fetchAndFillDropdown(url, dropdownId, placeholderText = null) {
+  const selectElement = document.getElementById(dropdownId);
+  if (!selectElement) return;
   
-  let attempts = 0;
-  const timer = setInterval(() => {
-    attempts++;
-    if (Array.from(sel.options).some(o => o.value == value) || attempts > 40) {
-      sel.value = value;
-      clearInterval(timer);
+  selectElement.disabled = true;
+  selectElement.innerHTML = `<option value="" disabled selected hidden>Memuat ${placeholderText || 'data'}...</option>`;
+  
+  // Reset dropdown berikutnya
+  const nextDropdowns = ['provinsi','kabupaten','kecamatan','desa'];
+  const currentIndex = nextDropdowns.indexOf(dropdownId);
+  if (currentIndex >= 0) {
+    for (let i = currentIndex + 1; i < nextDropdowns.length; i++) {
+      const nextSelect = document.getElementById(nextDropdowns[i]);
+      if (nextSelect) {
+        const name = nextDropdowns[i].charAt(0).toUpperCase() + nextDropdowns[i].slice(1);
+        nextSelect.innerHTML = `<option value="" disabled selected hidden>Pilih ${name}</option><option value="-">-</option>`;
+        nextSelect.disabled = true;
+      }
     }
-  }, 100);
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    
+    selectElement.innerHTML = `<option value="" disabled selected hidden>${placeholderText || 'Pilih'}</option>`;
+    if (dropdownId !== 'provinsi') selectElement.innerHTML += '<option value="-">-</option>';
+    
+    data.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      selectElement.appendChild(option);
+    });
+    
+    selectElement.disabled = false;
+    console.log(`${dropdownId} loaded successfully with ${data.length} items`);
+  } catch (error) {
+    console.error(`Error fetching data for ${dropdownId}:`, error);
+    selectElement.innerHTML = `<option value="" disabled selected hidden>Gagal memuat data</option>`;
+  }
 }
 
 /* ======= CARI PASIEN + ISI FORM ======= */
@@ -321,6 +356,7 @@ async function cariDanIsiPasien(query) {
     }
 
     const p = json.data;
+    console.log('Pasien ditemukan:', p);
 
     // set patient_id
     document.getElementById('patient_id').value = p.id || '';
@@ -344,37 +380,26 @@ async function cariDanIsiPasien(query) {
       }
     }
 
-    // dropdown wilayah
-    if (p.provinsi_id) await fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi', p.provinsi_id);
-    if (p.kabupaten_id) await fetchAndFillDropdown(`${BASE_URL_WILAYAH}regencies/${p.provinsi_id}.json`, 'kabupaten', 'Pilih Kabupaten', p.kabupaten_id);
-    if (p.kecamatan_id) await fetchAndFillDropdown(`${BASE_URL_WILAYAH}districts/${p.kabupaten_id}.json`, 'kecamatan', 'Pilih Kecamatan', p.kecamatan_id);
-    if (p.desa_id) await fetchAndFillDropdown(`${BASE_URL_WILAYAH}villages/${p.kecamatan_id}.json`, 'desa', 'Pilih Desa', p.desa_id);
+    // Set nilai initial untuk dropdown wilayah
+    initialProv = p.provinsi_id || null;
+    initialKab = p.kabupaten_id || null;
+    initialKec = p.kecamatan_id || null;
+    initialDesa = p.desa_id || null;
+
+    console.log('Initial wilayah:', { initialProv, initialKab, initialKec, initialDesa });
+
+    // Trigger perubahan dropdown untuk chain loading
+    const provSelect = document.getElementById('provinsi');
+    if (provSelect && initialProv) {
+      provSelect.value = String(initialProv);
+      provSelect.dispatchEvent(new Event('change'));
+    }
 
     alert('Data pasien ditemukan dan diisi otomatis ✅');
 
   } catch (err) {
-    console.error(err);
+    console.error('Error:', err);
     alert('Terjadi kesalahan saat mencari pasien. Lihat console.');
-  }
-}
-
-/* ======= FETCH DAN FILL DROPDOWN ======= */
-async function fetchAndFillDropdown(url, selectId, placeholder, selectedValue=null) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Gagal load ' + selectId);
-    const data = await res.json();
-    const sel = document.getElementById(selectId);
-    if (!sel) return;
-
-    sel.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`;
-    data.forEach(d => {
-      sel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-    });
-
-    if (selectedValue) sel.value = selectedValue;
-  } catch (err) {
-    console.error(err);
   }
 }
 
@@ -391,23 +416,59 @@ document.addEventListener('DOMContentLoaded', function() {
   if (pjWa) pjWa.addEventListener('input', e => onlyDigitsAndLimit(e.target, 13));
 
   // load provinsi awal
-  fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi').catch(()=>{});
+  (async function() {
+    await fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi');
+  })();
 
-  // chaining dropdowns
-  document.getElementById('provinsi').addEventListener('change', function() {
-    const id = this.value;
-    if (!id || id === '-') return;
-    fetchAndFillDropdown(`${BASE_URL_WILAYAH}regencies/${id}.json`, 'kabupaten', 'Pilih Kabupaten').catch(()=>{});
+  // chaining dropdowns dengan delay
+  const provSelect = document.getElementById('provinsi');
+  if (provSelect) provSelect.addEventListener('change', async function() {
+    const selectedProvinceId = this.value;
+    if (selectedProvinceId && selectedProvinceId !== '-') {
+      await fetchAndFillDropdown(`${BASE_URL_WILAYAH}regencies/${selectedProvinceId}.json`, 'kabupaten', 'Pilih Kabupaten');
+      
+      // Set kabupaten jika ada initial value
+      const kabSelect = document.getElementById('kabupaten');
+      if (kabSelect && initialKab) {
+        setTimeout(() => {
+          kabSelect.value = String(initialKab);
+          kabSelect.dispatchEvent(new Event('change'));
+        }, 200);
+      }
+    }
   });
-  document.getElementById('kabupaten').addEventListener('change', function() {
-    const id = this.value;
-    if (!id || id === '-') return;
-    fetchAndFillDropdown(`${BASE_URL_WILAYAH}districts/${id}.json`, 'kecamatan', 'Pilih Kecamatan').catch(()=>{});
+
+  const kabSelect = document.getElementById('kabupaten');
+  if (kabSelect) kabSelect.addEventListener('change', async function() {
+    const selectedRegencyId = this.value;
+    if (selectedRegencyId && selectedRegencyId !== '-') {
+      await fetchAndFillDropdown(`${BASE_URL_WILAYAH}districts/${selectedRegencyId}.json`, 'kecamatan', 'Pilih Kecamatan');
+      
+      // Set kecamatan jika ada initial value
+      const kecSelect = document.getElementById('kecamatan');
+      if (kecSelect && initialKec) {
+        setTimeout(() => {
+          kecSelect.value = String(initialKec);
+          kecSelect.dispatchEvent(new Event('change'));
+        }, 200);
+      }
+    }
   });
-  document.getElementById('kecamatan').addEventListener('change', function() {
-    const id = this.value;
-    if (!id || id === '-') return;
-    fetchAndFillDropdown(`${BASE_URL_WILAYAH}villages/${id}.json`, 'desa', 'Pilih Desa').catch(()=>{});
+
+  const kecSelect = document.getElementById('kecamatan');
+  if (kecSelect) kecSelect.addEventListener('change', async function() {
+    const selectedDistrictId = this.value;
+    if (selectedDistrictId && selectedDistrictId !== '-') {
+      await fetchAndFillDropdown(`${BASE_URL_WILAYAH}villages/${selectedDistrictId}.json`, 'desa', 'Pilih Desa');
+      
+      // Set desa jika ada initial value
+      const desaSelect = document.getElementById('desa');
+      if (desaSelect && initialDesa) {
+        setTimeout(() => {
+          desaSelect.value = String(initialDesa);
+        }, 200);
+      }
+    }
   });
 
   // tombol cari pasien
@@ -427,6 +488,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // reset: hapus patient_id
   document.getElementById('btnReset').addEventListener('click', function() {
     document.getElementById('patient_id').value = '';
+    // reset wilayah
+    initialProv = null;
+    initialKab = null;
+    initialKec = null;
+    initialDesa = null;
   });
 });
 </script>

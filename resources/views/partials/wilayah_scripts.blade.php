@@ -50,8 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
         await fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi');
         const provSelect = document.getElementById('provinsi');
         if (provSelect && initialProv) {
-            provSelect.value = String(initialProv);
-            provSelect.dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                provSelect.value = String(initialProv);
+                provSelect.dispatchEvent(new Event('change'));
+            }, 150);
         }
     })();
 
@@ -62,8 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
             await fetchAndFillDropdown(`${BASE_URL_WILAYAH}regencies/${selectedProvinceId}.json`, 'kabupaten', 'Pilih Kabupaten');
             const kabSelect = document.getElementById('kabupaten');
             if (kabSelect && initialKab) {
-                kabSelect.value = String(initialKab);
-                kabSelect.dispatchEvent(new Event('change'));
+                setTimeout(() => {
+                    kabSelect.value = String(initialKab);
+                    kabSelect.dispatchEvent(new Event('change'));
+                }, 150);
             }
         }
     });
@@ -75,8 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
             await fetchAndFillDropdown(`${BASE_URL_WILAYAH}districts/${selectedRegencyId}.json`, 'kecamatan', 'Pilih Kecamatan');
             const kecSelect = document.getElementById('kecamatan');
             if (kecSelect && initialKec) {
-                kecSelect.value = String(initialKec);
-                kecSelect.dispatchEvent(new Event('change'));
+                setTimeout(() => {
+                    kecSelect.value = String(initialKec);
+                    kecSelect.dispatchEvent(new Event('change'));
+                }, 150);
             }
         }
     });
@@ -88,7 +94,9 @@ document.addEventListener('DOMContentLoaded', function() {
             await fetchAndFillDropdown(`${BASE_URL_WILAYAH}villages/${selectedDistrictId}.json`, 'desa', 'Pilih Desa');
             const desaSelect = document.getElementById('desa');
             if (desaSelect && initialDesa) {
-                desaSelect.value = String(initialDesa);
+                setTimeout(() => {
+                    desaSelect.value = String(initialDesa);
+                }, 150);
             }
         }
     });

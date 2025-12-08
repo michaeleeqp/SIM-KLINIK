@@ -248,7 +248,7 @@
                               required
                             >
                             <option value="" disabled selected hidden>Pilih kabupaten</option>
-                            <option>-</option>
+                            <option value="-">-</option>
                             </select>
                           </div>
                           <div class="form-group">
@@ -260,7 +260,7 @@
                               required
                             >
                             <option value="" disabled selected hidden>Pilih Kecamatan</option>
-                            <option>-</option>
+                            <option value="-">-</option>
                             </select>
                           </div>
                           <div class="form-group">
@@ -272,7 +272,7 @@
                               required
                             >
                             <option value="" disabled selected hidden>Pilih Desa</option>
-                            <option>-</option>
+                            <option value="-">-</option>
                             </select>
                           </div>
                           <div class="form-group">

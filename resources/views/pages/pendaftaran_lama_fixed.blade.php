@@ -176,6 +176,7 @@
                       <option value="" disabled selected hidden>Pilih Jadwal</option>
                       <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
                       <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
+                      <option value="ugd-dr-prabowo" id="jadwal_prabowo_option">UGD - dr. Prabowo - memuat...</option>
                     </select>
                   </div>
 
@@ -494,6 +495,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initialKec = null;
     initialDesa = null;
   });
+
+  // Realtime update untuk jadwal UGD - dr. Prabowo
+  (function(){
+    const prabowoOption = document.getElementById('jadwal_prabowo_option');
+    function two(n){ return n.toString().padStart(2,'0'); }
+    function formatTime(now){
+      return `${two(now.getHours())}:${two(now.getMinutes())}:${two(now.getSeconds())}`;
+    }
+    if (prabowoOption) {
+      function updatePrabowo(){
+        const now = new Date();
+        prabowoOption.textContent = `UGD - dr. Prabowo - ${formatTime(now)}`;
+      }
+      updatePrabowo();
+      setInterval(updatePrabowo, 1000);
+    }
+  })();
 });
 </script>
 @endpush

@@ -334,7 +334,11 @@
                             >
                             <option value="" disabled selected hidden>Pilih Jadwal</option>
                             <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
-                            <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
+                            <option value="Klinik Umum - dr. Prabowo - 14.00-20.00">Klinik Umum - dr. Prabowo - 14.00-20.00</option>
+                            <option value="UGD - dr. Jokowi - 00.00-12.00">UGD - dr. Jokowi - 00.00-20.00</option>
+                            <option value="UGD - dr. Megawati - 12.00-24.00">UGD - dr. Megawati - 12.00-20.00</option>
+                            <option value="Rawat Inap - dr. Jusuf Kalla - 00.00-12.00">Rawat Inap - dr. Jusuf Kalla - 00.00-12.00</option>
+                            <option value="Rawat Inap - dr. Habibie - 12.00-24.00">Rawat Inap - dr. Habibie - 12.00-24.00</option>
                             </select>
                           </div>
                           <div class="form-group">

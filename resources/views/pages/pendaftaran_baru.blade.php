@@ -373,7 +373,7 @@
                               name="no_asuransi"
                               id="no_asuransi"
                               oninput="cleanAndLimitAsuransi(event)"
-                              maxlenght="13"
+                              maxlength="13"
                             />
                           </div>
                         </div>

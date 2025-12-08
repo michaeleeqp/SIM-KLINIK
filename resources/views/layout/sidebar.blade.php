@@ -2,7 +2,11 @@
 // Cek apakah URL saat ini berada di bawah rute 'pendaftaran'
     $isPendaftaranActive = request()->is('pendaftaran/*') || request()->is('list/pendaftaran');
 @endphp
-
+<style>
+    .logo-text {
+        color: #ffffff !important; /* Warna putih */
+    }
+</style>
 <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <!-- Logo Header -->
@@ -14,6 +18,7 @@
                 class="navbar-brand"
                 height="40"
               />
+                 <span class="ms-2 logo-text">RME KLINIK</span>
             </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">

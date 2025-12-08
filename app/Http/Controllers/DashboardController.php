@@ -20,8 +20,30 @@ class DashboardController extends Controller
         //hitung total pasien
         $totalPasien = Patient::count();
         
-        // 3. Kembalikan SATU view dengan SEMUA data yang dibutuhkan
-        return view('pages.dashboard', compact('kunjunganHariIni', 'pasienBaruHariIni', 'totalPasien'));
+        // 3. Data kunjungan per bulan tahun ini
+        $bulanIni = Carbon::now();
+        $monthlyVisits = [];
+        $monthLabels = [];
+        
+        for ($i = 11; $i >= 0; $i--) {
+            $date = $bulanIni->copy()->subMonths($i);
+            $monthLabels[] = $date->format('M Y');
+            
+            $count = Kunjungan::whereYear('tanggal_kunjungan', $date->year)
+                ->whereMonth('tanggal_kunjungan', $date->month)
+                ->count();
+            
+            $monthlyVisits[] = $count;
+        }
+        
+        // 4. Kembalikan SATU view dengan SEMUA data yang dibutuhkan
+        return view('pages.dashboard', compact(
+            'kunjunganHariIni', 
+            'pasienBaruHariIni', 
+            'totalPasien',
+            'monthlyVisits',
+            'monthLabels'
+        ));
 
         // CATATAN: Pastikan Anda hanya memiliki SATU return view() di akhir method.
     }

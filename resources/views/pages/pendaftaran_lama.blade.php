@@ -84,13 +84,8 @@
 
                   <div class="form-group">
                     <label>Tanggal Lahir</label>
-                    <input type="date" 
-                    class="form-control" 
-                    name="tanggal_lahir" 
-                    id="tanggal_lahir" 
-                    readonly>
-                    <span id="umur_display" 
-                    class="form-text text-muted">Umur: -</span>
+                    <input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir" readonly>
+                    <small id="umur_display" class="form-text text-muted">Umur: -</small>
                   </div>
 
                   <div class="form-group">
@@ -122,28 +117,28 @@
                   </div>
 
                   <div class="form-group">
-                      <label>Provinsi</label>
-                      <select id="provinsi" name="provinsi_id" class="form-control"disabled></select>                      </select>
+                    <label>Provinsi</label>
+                    <select id="provinsi" name="provinsi_id" class="form-select" readonly></select>
                   </div>
 
                   <div class="form-group">
                     <label>Kabupaten</label>
-                    <select id="kabupaten" name="kabupaten_id" class="form-control" disabled></select>
+                    <select id="kabupaten" name="kabupaten_id" class="form-select" readonly></select>
                   </div>
 
                   <div class="form-group">
                     <label>Kecamatan</label>
-                    <select id="kecamatan" name="kecamatan_id" class="form-control" disabled></select>
+                    <select id="kecamatan" name="kecamatan_id" class="form-select" readonly></select>
                   </div>
 
                   <div class="form-group">
                     <label>Desa</label>
-                    <select id="desa" name="desa_id" class="form-control" disabled></select>
+                    <select id="desa" name="desa_id" class="form-select" readonly></select>
                   </div>
 
                   <div class="form-group">
                     <label>Rujukan Dari</label>
-                    <select class="form-control" name="rujukan_dari" required>
+                    <select class="form-select" name="rujukan_dari" required>
                       <option value="" disabled selected hidden>Pilih Asal Rujukan</option>
                       <option value="Sendiri/Keluarga">Sendiri/Keluarga</option>
                       <option value="Masyarakat">Masyarakat</option>
@@ -167,27 +162,26 @@
 
                   <div class="form-group">
                     <label>Tujuan</label>
-                    <select class="form-control" name="poli_tujuan" required>
+                    <select class="form-select" name="poli_tujuan" required>
                       <option value="" disabled selected hidden>Pilih Tujuan</option>
-                      <option value="UGD">UGD</option>
-                      <option value="Klinik Umum">Klinik Umum</option>
-                      <option value="Rawat Inap">Rawat Inap</option>
+                      <option value="ugd">UGD</option>
+                      <option value="umum">Klinik Umum</option>
+                      <option value="rawat_inap">Rawat Inap</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="jadwal">Dokter</label>
-                    <select name="dokter_id" class="form-control" required>
-                        <option value="">-- Pilih Dokter --</option>
-                        @foreach($dokters as $d)
-                            <option value="{{ $d->id }}">{{ $d->nama_dokter }} — ({{ $d->jadwal_praktek }})</option>
-                        @endforeach
+                    <label>Jadwal</label>
+                    <select class="form-select" name="jadwal_dokter" required>
+                      <option value="" disabled selected hidden>Pilih Jadwal</option>
+                      <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
+                      <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
                     </select>
                   </div>
 
                   <div class="form-group">
                     <label>Kunjungan</label>
-                    <select class="form-control" name="kunjungan" required>
+                    <select class="form-select" name="kunjungan" required>
                       <option value="" disabled selected hidden>Pilih Jenis Kunjungan</option>
                       <option value="Sakit">Sakit</option>
                       <option value="Sehat">Sehat</option>
@@ -196,7 +190,7 @@
 
                   <div class="form-group">
                     <label>Jenis Pembayaran</label>
-                    <select class="form-control" name="jenis_bayar" id="jenis_bayar" onchange="toggleNoAsuransi()" required>
+                    <select class="form-select" name="jenis_bayar" id="jenis_bayar" onchange="toggleNoAsuransi()" required>
                       <option value="" disabled selected hidden>Pilih Jenis Pembayaran</option>
                       <option value="Umum">Umum</option>
                       <option value="BPJS PBI">BPJS PBI</option>
@@ -207,7 +201,7 @@
 
                   <div class="form-group" id="no_asuransi_group" style="display:none;">
                     <label>No Asuransi</label>
-                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi" maxlength="13">
+                    <input type="text" class="form-control" name="no_asuransi" id="no_asuransi">
                   </div>
                 </div>
 
@@ -266,21 +260,18 @@ function onlyDigitsAndLimit(el, maxLen) {
 }
 
 function toggleNoAsuransi() {
-    const jenis = document.getElementById('jenis_bayar').value;
-    const group = document.getElementById('no_asuransi_group');
-    const input = document.getElementById('no_asuransi');
-
-    if (!group || !input) return;
-
-    // ❗ No Asuransi hanya muncul kalau TIDAK memilih Umum
-    if (jenis !== 'Umum' && jenis !== '') {
-        group.style.display = 'block';
-        input.required = true;
-    } else {
-        group.style.display = 'none';
-        input.required = false;
-        input.value = '';
-    }
+  const jenis = document.getElementById('jenis_bayar').value;
+  const group = document.getElementById('no_asuransi_group');
+  const input = document.getElementById('no_asuransi');
+  if (!group || !input) return;
+  if (jenis === 'BPJS PBI' || jenis === 'BPJS NON PBI') {
+    group.style.display = 'block';
+    input.required = true;
+  } else {
+    group.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
 }
 
 function hitungUmurFromInput(dateStr) {
@@ -400,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (pjWa) pjWa.addEventListener('input', e => onlyDigitsAndLimit(e.target, 13));
 
   // load provinsi awal
-  fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Masukkan nomor RM / NIK').catch(()=>{});
+  fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi').catch(()=>{});
 
   // chaining dropdowns
   document.getElementById('provinsi').addEventListener('change', function() {

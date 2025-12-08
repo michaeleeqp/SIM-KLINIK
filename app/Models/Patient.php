@@ -30,8 +30,12 @@ class Patient extends Model
         'kecamatan_id',
         'desa_id',        
     ];
+
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+    ];
     
-        public function kunjungans()
+    public function kunjungans()
     {
         return $this->hasMany(\App\Models\Kunjungan::class, 'patient_id');
     }

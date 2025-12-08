@@ -13,11 +13,11 @@ class Kunjungan extends Model
 
     protected $fillable = [
         'patient_id',
-        'dokter_id',
         'rujukan_dari',
         'keterangan_rujukan',
         'tanggal_kunjungan',
-        'poli_tujuan',        
+        'poli_tujuan',
+        'jadwal_dokter',
         'kunjungan',
         'jenis_bayar',
         'no_asuransi',
@@ -30,10 +30,5 @@ class Kunjungan extends Model
     public function patient()
     {
         return $this->belongsTo(Patient::class, 'patient_id');
-    }
-    public function dokter()
-    {
-        // belongsTo(ModelTujuannya, 'nama_kolom_fk_di_tabel_ini')
-        return $this->belongsTo(Dokter::class, 'dokter_id');
     }
 }

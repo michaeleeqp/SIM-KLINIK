@@ -1,150 +1,183 @@
+@php
+    \Carbon\Carbon::setLocale('id'); // Atur locale ke Indonesia
+@endphp
 
 @extends('layout.app')
 
 @section('content')
-<div class="container"> 
-    <div class="page-inner">
-
-        <div class="page-header">
-            <h3 class="fw-bold mb-3">List Pendaftaran Pasien</h3>
-            <ul class="breadcrumbs mb-3">
+<div class="container">
+          <div class="page-inner">
+            <div class="page-header">
+              <h3 class="fw-bold mb-3">List Pendaftaran</h3>
+              <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
-                    <a href="#">
-                        <i class="fas fa-home"></i>
-                    </a>
+                  <a href="/dashboard">
+                    <i class="icon-home"></i>
+                  </a>
                 </li>
                 <li class="separator">
-                    <i class="fas fa-angle-right"></i>
+                  <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Pendaftaran</a>
+                  <a href="#">Pendaftaran</a>
                 </li>
-            </ul>
-        </div>
-
-        <div class="card p-3">
-            <div class="table-responsive">
-                <table id="basic-datatables" class="display table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>No RM</th>
+                <li class="separator">
+                  <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                  <a href="#">List Pendaftaran</a>
+                </li>
+              </ul>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header d-flex align-items-center justify-content-between">
+                    <h4 class="card-title">List Pendaftaran Pasien</h4>
+                    <div>
+                      <a href="{{ route('list.pendaftaran') }}" class="btn btn-sm btn-outline-secondary">Semua</a>
+                      <a href="{{ route('list.pendaftaran') }}?tujuan=ugd" class="btn btn-sm btn-outline-primary">UGD</a>
+                      <a href="{{ route('list.pendaftaran') }}?tujuan=umum" class="btn btn-sm btn-outline-info">Poliklinik Umum</a>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <form method="GET" class="mb-3">
+                      <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                          <input type="date" name="date" class="form-control" value="{{ $date ?? '' }}">
+                        </div>
+                      
+                        <div class="col-auto">
+                          <button class="btn btn-sm btn-primary">Filter</button>
+                          <a href="{{ route('list.pendaftaran') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                        </div>
+                      </div>
+                    </form>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table
+                        id="basic-datatables"
+                        class="display table table-striped table-hover"
+                      >
+                        <thead>
+                          <tr>
+                            <th>No RM Pasien</th>
                             <th>Nama Pasien</th>
                             <th>Poli Tujuan</th>
-                            <th>Dokter</th>
                             <th>Tanggal Kunjungan</th>
                             <th>Jenis Pembayaran</th>
                             <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($kunjungans as $k)
-                        <tr>
-                            <td>{{ $k->patient->no_rm ?? '-' }}</td>
-                            <td>{{ $k->patient->nama_pasien ?? '-' }}</td>
-                            <td>{{ $k->poli_tujuan }}</td>
-                            <td>{{ $k->dokter->nama_dokter ?? '-' }}</td>
-                            <td>{{ \Carbon\Carbon::parse($k->tanggal_kunjungan)->format('d-m-Y') }}</td>
-                            <td>{{ $k->jenis_bayar }}<br>
-                                No Asuransi :
-                                @if($k->jenis_bayar != 'Umum')
-                                    {{ $k->no_asuransi ?? '-' }}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($kunjungans as $k)
+                            <tr>
+                              <td>{{ $k->patient->no_rm ?? '-' }}</td>
+                              <td>
+                                {{ $k->patient->nama_pasien ?? '-' }}<br>
+                                Umur : 
+                                @if(isset($k->patient->tanggal_lahir))
+                                    {{ \Carbon\Carbon::parse($k->patient->tanggal_lahir)->age }}
                                 @else
                                     -
                                 @endif
-                            </td>
-                            <td>
+                              </td>
+                              <td>{{ $k->poli_tujuan ?? '-' }}</td> {{-- Tujuan poli --}}
+                              <td>
+                                {{ $k->tanggal_kunjungan 
+                                    ? \Carbon\Carbon::parse($k->tanggal_kunjungan)->translatedFormat('d F Y') 
+                                     : '-' 
+                                  }}
+                              </td>
+                              <td>{{ $k->jenis_bayar ?? '-' }}</td> {{-- Jenis pembayaran --}}
+                              <td>
                                 <div class="form-button-action">
-                                    <a
-                                        href="{{ route('kunjungan.edit', $k->id) }}"
-                                        class="btn btn-link btn-primary btn-sm"
-                                        data-toggle="tooltip"
-                                        title="Edit Data">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('kunjungan.edit', $k->id) }}"
+                                      class="btn btn-link btn-primary btn-lg" title="Edit">
+                                        <i class="fa fa-edit"></i>
                                     </a>
-                                    <form
-                                        action="{{ route('kunjungan.destroy', $k->id) }}"
-                                        method="POST"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Hapus data ini?')">
-                                        @csrf @method('DELETE')
-                                        <button
-                                            type="submit"
-                                            class="btn btn-link btn-danger btn-sm"
-                                            data-toggle="tooltip"
-                                            title="Hapus Data">
-                                            <i class="fas fa-trash"></i>
+
+                                    <form action="{{ route('kunjungan.destroy', $k->id) }}" 
+                                          method="POST"
+                                          onsubmit="return confirm('Yakin ingin menghapus data ini?')"
+                                          style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-link btn-danger" title="Hapus">
+                                            <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                              </td>
+                            </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-
-    </div>
-</div>
 @endsection
 
 @push('scripts')
 <script>
-$(document).ready(function () {
-    // 1. Definisikan template DOM baru
-    let table = $('#basic-datatables').DataTable({
-        // Urutan: l (length/show entries), <date-filter>, f (filter/search)
-        dom: 
-            "<'row'<'col-md-3'l><'col-md-6'<'date-filter'>><'col-md-3'f>>" +
-            "<'row'<'col-md-12'tr>>" +
-            "<'row'<'col-md-5'i><'col-md-7'p>>",
-        // Hapus konfigurasi dom yang sebelumnya agar lebih rapi.
-    });
+      $(document).ready(function () {
+        $("#basic-datatables").DataTable({});
 
-    // 2. Sisipkan HTML filter tanggal ke dalam div.date-filter
-    $("div.date-filter").html(
-        `
-        <div class="d-flex justify-content-center align-items-center gap-2">
-            <label class="fw-bold mb-0 me-1">Tanggal</label>
-            <input type="date" id="minDate" class="form-control form-control-sm" style="width:150px">
-            <span class="fw-bold">s/d</span>
-            <input type="date" id="maxDate" class="form-control form-control-sm" style="width:150px">
+        $("#multi-filter-select").DataTable({
+          pageLength: 5,
+          initComplete: function () {
+            this.api()
+              .columns()
+              .every(function () {
+                var column = this;
+                var select = $(
+                  '<select class="form-select"><option value=""></option></select>'
+                )
+                  .appendTo($(column.footer()).empty())
+                  .on("change", function () {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
 
-            <button class="btn btn-primary btn-sm" id="filterDateBtn">Cari</button>
-            <button class="btn btn-secondary btn-sm" id="resetDateBtn">Reset</button>
-        </div>
-        `
-    );
+                    column
+                      .search(val ? "^" + val + "$" : "", true, false)
+                      .draw();
+                  });
 
-    // Pastikan fungsi pencarian tetap berjalan dengan baik
-    $.fn.dataTable.ext.search.push(function (settings, data) {
-        let min = $('#minDate').val();
-        let max = $('#maxDate').val();
-        // data[3] adalah indeks kolom 'Tanggal Kunjungan'
-        let date = data[3];
+                column
+                  .data()
+                  .unique()
+                  .sort()
+                  .each(function (d, j) {
+                    select.append(
+                      '<option value="' + d + '">' + d + "</option>"
+                    );
+                  });
+              });
+          },
+        });
 
-        if (!min && !max) 
-            return true;
-        
-        let d = new Date(date);
-        let minDate = min ? new Date(min) : null;
-        let maxDate = max ? new Date(max) : null;
-        
-        // Atur agar tanggal perbandingan mencakup seluruh hari
-        if(maxDate) {
-            maxDate.setDate(maxDate.getDate() + 1); // Tambahkan 1 hari untuk perbandingan 'lebih kecil dari'
-        }
+        // Add Row
+        $("#add-row").DataTable({
+          pageLength: 5,
+        });
 
-        return !((minDate && d < minDate) || (maxDate && d >= maxDate));
-    });
+        var action =
+          '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
 
-    $('#filterDateBtn').click(() => table.draw());
-
-    $('#resetDateBtn').click(function () {
-        $('#minDate').val('');
-        $('#maxDate').val('');
-        table.draw();
-    });
-});
+        $("#addRowButton").click(function () {
+          $("#add-row")
+            .dataTable()
+            .fnAddData([
+              $("#addName").val(),
+              $("#addPosition").val(),
+              $("#addOffice").val(),
+              action,
+            ]);
+          $("#addRowModal").modal("hide");
+        });
+      });
 </script>
 @endpush

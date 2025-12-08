@@ -51,68 +51,64 @@
                           </tr>
                         </thead>
                         <tbody>
-                          @foreach ($patients as $p)
+                            @foreach ($patients as $p)
                               <tr>
+                                {{-- Kolom 1: No RM Pasien --}}
+                                <td>{{ $p->no_rm ?? '-' }}</td>
 
-                                  {{-- Kolom 1: No RM Pasien --}}
-                                  <td>{{ $p->no_rm ?? '-' }}</td>
+                                {{-- Kolom 2: Informasi Pasien --}}
+                                <td>
+                                  <strong>{{ $p->nama_pasien ?? '-' }}</strong><br>
+                                  Alamat: {{ $p->alamat ?? '-' }}<br>
+                                  Nama Penanggung Jawab: {{ optional($p->kunjungans->last())->pj_nama ?? '-' }}
+                                </td>
 
-                                  {{-- Kolom 2: Informasi Pasien --}}
-                                  <td>
-                                      <strong>{{ $p->nama_pasien ?? '-' }}</strong><br>
-                                      Alamat: {{ $p->alamat ?? '-' }}<br>
-                                      Nama Penanggung Jawab: {{ $p->kunjungans->last()->pj_nama ?? '-' }} 
-                                  </td>
+                                {{-- Kolom 3: Tanggal Lahir / Umur --}}
+                                <td>
+                                  {{-- Tanggal Lahir --}}
+                                  @if($p->tanggal_lahir)
+                                    {{ \Carbon\Carbon::parse($p->tanggal_lahir)->format('d-m-Y') }}
+                                  @else
+                                    -
+                                  @endif
+                                  <br>
 
-                                  {{-- Kolom 3: Tanggal Lahir / Umur --}}
-                                  <td>
-                                      {{-- Tanggal Lahir --}}
-                                      {{ $p->tanggal_lahir 
-                                          ? \Carbon\Carbon::parse($p->tanggal_lahir)->translatedFormat('d F Y')
-                                          : '-' 
-                                      }}
-                                      <br>
+                                  {{-- Umur --}}
+                                  Umur:
+                                  @if($p->tanggal_lahir)
+                                    {{ \Carbon\Carbon::parse($p->tanggal_lahir)->age }} Tahun
+                                  @else
+                                    -
+                                  @endif
+                                </td>
 
-                                      {{-- Umur --}}
-                                      Umur: 
-                                      {{ $p->tanggal_lahir 
-                                          ? \Carbon\Carbon::parse($p->tanggal_lahir)->age . ' Tahun'
-                                          : '-'
-                                      }}
-                                  </td>
+                                {{-- Kolom 4: No KTP / BPJS --}}
+                                <td>
+                                  <strong>NO KTP</strong><br>
+                                  {{ $p->no_ktp ?? '-' }}<br>
 
-                                  {{-- Kolom 4: No KTP / BPJS --}}
-                                  <td>
-                                      <strong>NO KTP</strong><br>
-                                      {{ $p->no_ktp ?? '-' }}<br>
+                                  <strong>NO BPJS</strong><br>
+                                  {{ optional($p->kunjungans->last())->no_asuransi ?? '-' }}
+                                </td>
 
-                                      <strong>NO BPJS</strong><br>
-                                      {{ $p->kunjungans->last()->no_asuransi ?? '-' }}
-                                  </td>
-
-                                  {{-- Kolom 5: Action --}}
-                                  <td>
-                                    <div class="form-button-action d-flex gap-2">
-                                        <a href="{{ route('patient.edit', $p->id) }}" 
-                                          class="btn btn-primary d-flex align-items-center justify-content-center px-3 py-2">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-
-                                        <form action="{{ route('patient.destroy', $p->id) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('Yakin ingin menghapus data pasien ini?')"
-                                              style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger d-flex align-items-center justify-content-center px-3 py-2">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                  </td>
-                                </div>
+                                {{-- Kolom 5: Action --}}
+                                <td>
+                                  <div class="form-button-action">
+                                    <a href="{{ route('patient.edit', $p->id) }}" class="btn btn-link btn-primary btn-lg">
+                                      <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('patient.destroy', $p->id) }}" method="POST"
+                                      onsubmit="return confirm('Yakin ingin menghapus data pasien ini?')" style="display:inline;">
+                                      @csrf
+                                      @method('DELETE')
+                                      <button class="btn btn-link btn-danger">
+                                        <i class="fa fa-times"></i>
+                                      </button>
+                                    </form>
+                                  </div>
+                                </td>
                               </tr>
-                          @endforeach
+                            @endforeach
                         </tbody>
                       </table>
                     </div>

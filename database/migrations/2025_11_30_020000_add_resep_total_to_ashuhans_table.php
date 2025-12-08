@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dokter', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_dokter', 100);
-            $table->string('spesialisasi', 100);
-            $table->string('jadwal_praktek', 100);
-            $table->timestamps();
+        Schema::table('ashuhans', function (Blueprint $table) {
+            $table->decimal('resep_total', 12, 2)->nullable()->after('resep_collected_at');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dokter');
+        Schema::table('ashuhans', function (Blueprint $table) {
+            $table->dropColumn('resep_total');
+        });
     }
 };

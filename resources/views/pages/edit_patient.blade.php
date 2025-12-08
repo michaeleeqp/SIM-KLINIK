@@ -1,301 +1,260 @@
 @extends('layout.app')
 
 @section('content')
-<div class="container"> <!-- PERBAIKAN: Spasi dihapus -->
-    <div class="page-inner">
-        <div class="page-header">
-            <h3 class="fw-bold mb-3">Pasien</h3>
-            <ul class="breadcrumbs mb-3">
-                <li class="nav-home">
-                    <a href="#">
-                        <i class="fas fa-layer-group"></i>
-                    </a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Master Pasien/a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="#">Edit Master Pasien</a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Edit Master Pasien</div>
-                    </div>
-                    
-                    <form action="{{ route('patient.update', $patient->id) }}" method="POST">
-                        @csrf 
-                        @method('PUT')
-                        
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- KOLOM KIRI -->
-                                <div class="col-md-6 col-lg-4">
-                                    
-                                    <div class="form-group">
-                                        <label for="no_rm">Nomor Rekam Medis</label>
-                                        <input type="text" class="form-control" name="no_rm_display" value="{{ $patient->no_rm }}" disabled>
-                                        <input type="hidden" name="no_rm" value="{{ $patient->no_rm }}">
-                                    </div>
+<div class="container">
+	<div class="page-inner">
+		<div class="page-header">
+			<h3 class="fw-bold mb-3">Edit Pasien</h3>
+			<ul class="breadcrumbs mb-3">
+				<li class="nav-home">
+					<a href="/dashboard">
+						<i class="icon-home"></i>
+					</a>
+				</li>
+				<li class="separator"><i class="icon-arrow-right"></i></li>
+				<li class="nav-item"><a href="#">Pasien</a></li>
+				<li class="separator"><i class="icon-arrow-right"></i></li>
+				<li class="nav-item"><a href="#">Edit Pasien</a></li>
+			</ul>
+		</div>
 
-                                    <div class="form-group">
-                                        <label>Kunjungan Terakhir</label>
-                                        <input type="text" 
-                                            class="form-control" 
-                                            value="{{ $kunjunganTerakhir ? \Carbon\Carbon::parse($kunjunganTerakhir)->translatedFormat('d M Y') : 'Belum pernah berkunjung' }}" 
-                                            disabled>
-                                    </div>
+		<div class="row">
+			<div class="col-md-8">
+				<div class="card">
+					<div class="card-header"><h4 class="card-title">Form Edit Pasien</h4></div>
+					<div class="card-body">
+						@if($errors->any())
+							<div class="alert alert-danger">
+								<ul class="mb-0">
+									@foreach($errors->all() as $err)
+										<li>{{ $err }}</li>
+									@endforeach
+								</ul>
+							</div>
+						@endif
 
-                                    <div class="form-group">
-                                        <label for="noktp">No KTP</label>
-                                        <input type="text" class="form-control" maxlength="16" inputmode="numeric" id="noktp" name="no_ktp" value="{{ $patient->no_ktp }}"/>
-                                    </div>
+						<form action="{{ route('patient.update', $patient->id) }}" method="POST">
+							@csrf
+							@method('PUT')
 
-                                    <div class="form-group">
-                                        <label for="namapasien">Nama Pasien</label>
-                                        <input type="text" name="nama_pasien" class="form-control" value="{{ $patient->nama_pasien }}">
-                                    </div>
+							<div class="mb-3">
+								<label class="form-label">No RM</label>
+								<input type="text" name="no_rm" class="form-control" value="{{ old('no_rm', $patient->no_rm) }}" readonly>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="tanggal_lahir">Tanggal Lahir</label>
-                                        <div class="input-group">
-                                            <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" max="{{ date('Y-m-d') }}" value="{{ $patient->tanggal_lahir }}" onchange="hitungUmur()" required>
-                                            <span class="input-group-text">Umur: {{ \Carbon\Carbon::parse($patient->tanggal_lahir)->age }} Tahun</span>
-                                        </div>
-                                    </div>
+							<div class="mb-3">
+								<label class="form-label">Nama Pasien</label>
+								<input type="text" name="nama_pasien" class="form-control" value="{{ old('nama_pasien', $patient->nama_pasien) }}" required>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="jk">Jenis Kelamin</label>
-                                        <select class="form-select form-control" name="jenis_kelamin" required>
-                                            <option disabled hidden>Pilih Jenis Kelamin</option>
-                                            <option value="Laki-laki" {{ $patient->jenis_kelamin=='Laki-laki'?'selected':'' }}>Laki-laki</option>
-                                            <option value="Perempuan" {{ $patient->jenis_kelamin=='Perempuan'?'selected':'' }}>Perempuan</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label for="golongandarah">Golongan Darah</label>
-                                        <select class="form-select form-control" name="golongan_darah" required>
-                                            <option disabled hidden>Pilih Golongan Darah</option>
-                                            <option value="A" {{ $patient->golongan_darah=='A'?'selected':'' }}>A</option>
-                                            <option value="B" {{ $patient->golongan_darah=='B'?'selected':'' }}>B</option>
-                                            <option value="AB" {{ $patient->golongan_darah=='AB'?'selected':'' }}>AB</option>
-                                            <option value="O" {{ $patient->golongan_darah=='O'?'selected':'' }}>O</option>
-                                            <option value="Tidak Tahu" {{ $patient->golongan_darah=='Tidak Tahu'?'selected':'' }}>Tidak Tahu</option>
-                                        </select>
-                                    </div>
+							<div class="mb-3">
+								<label class="form-label">No KTP</label>
+								<input id="noktp" type="text" name="no_ktp" class="form-control" value="{{ old('no_ktp', $patient->no_ktp) }}">
+							</div>
 
-                                    
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Jenis Kelamin</label>
+									<select name="jenis_kelamin" class="form-control" required>
+										<option value="" disabled>-- Pilih Jenis Kelamin --</option>
+										@php($selJenis = strtolower(trim((string) old('jenis_kelamin', $patient->jenis_kelamin ?? ''))))
+										<option value="Laki-laki" @selected($selJenis == strtolower('Laki-laki'))>Laki-laki</option>
+										<option value="Perempuan" @selected($selJenis == strtolower('Perempuan'))>Perempuan</option>
+									</select>
+								</div>
 
-                                    
-                                    
-                                </div> <!-- END KOLOM KIRI (PERBAIKAN: Penutup ini tadi hilang) -->
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Tanggal Lahir</label>
+									<div class="input-group mb-3">
+										<input id="tanggal_lahir" type="date" name="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $patient->tanggal_lahir ? \Carbon\Carbon::parse($patient->tanggal_lahir)->format('Y-m-d') : '') }}" max="{{ date('Y-m-d') }}" onchange="hitungUmur()">
+										<span class="input-group-text" id="umur_display">Umur: 0y 0m 0d</span>
+									</div>
+								</div>
+							</div>
 
+							<div class="mb-3">
+								<label class="form-label">Golongan Darah</label>
+								<select name="golongan_darah" class="form-control">
+									<option value="" disabled>-- Pilih Golongan Darah --</option>
+									@php($selGD = strtolower(trim((string) old('golongan_darah', $patient->golongan_darah ?? ''))))
+									@foreach(['A','B','AB','O','Tidak Tahu'] as $gd)
+										<option value="{{ $gd }}" @selected($selGD == strtolower($gd))>{{ $gd }}</option>
+									@endforeach
+								</select>
+							</div>
 
-                                <!-- KOLOM TENGAH -->
-                                <div class="col-md-6 col-lg-4">
-                                    
-                                    <div class="form-group">
-                                        <label for="agama">Agama</label>
-                                        <select class="form-select form-control" name="agama" required>
-                                            <option disabled hidden>Pilih Agama</option>
-                                            <option value="Islam" {{ $patient->agama=='Islam'?'selected':'' }}>Islam</option>
-                                            <option value="Kristen" {{ $patient->agama=='Kristen'?'selected':'' }}>Kristen</option>
-                                            <option value="Katolik" {{ $patient->agama=='Katolik'?'selected':'' }}>Katolik</option>
-                                            <option value="Hindu" {{ $patient->agama=='Hindu'?'selected':'' }}>Hindu</option>
-                                            <option value="Budha" {{ $patient->agama=='Budha'?'selected':'' }}>Budha</option>
-                                            <option value="Konghucu" {{ $patient->agama=='Konghucu'?'selected':'' }}>Konghucu</option>
-                                        </select>
-                                    </div>
+							<div class="mb-3">
+								<label class="form-label">Alamat</label>
+								<textarea name="alamat" class="form-control" rows="3">{{ old('alamat', $patient->alamat) }}</textarea>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="nowa">No Telpon/WA</label>
-                                        <input type="text" class="form-control" id="nowa" name="no_wa" inputmode="numeric" maxlength="13" value="{{ $patient->no_wa }}" required>
-                                    </div>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">No WA</label>
+									<input id="nowa" type="text" name="no_wa" class="form-control" value="{{ old('no_wa', $patient->no_wa) }}">
+								</div>
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Pekerjaan</label>
+									<select name="pekerjaan" class="form-control">
+										<option value="" disabled>-- Pilih Pekerjaan --</option>
+										@php($selPkj = strtolower(trim((string) old('pekerjaan', $patient->pekerjaan ?? ''))))
+										@foreach(['Pegawai BUMN','PNS','TNI','Polisi','Karyawan Swasta','Petani','Nelayan','Wiraswasta','Pelajar / Mahasiswa','Ibu Rumah Tangga','Tidak Bekerja','Lainnya'] as $job)
+											<option value="{{ $job }}" @selected($selPkj == strtolower($job))>{{ $job }}</option>
+										@endforeach
+									</select>
+								</div>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="pekerjaan">Pekerjaan</label>
-                                        <select class="form-select form-control" name="pekerjaan" required>
-                                            <option value="" disabled hidden>Pilih Pekerjaan</option>
-                                            <option value="Pegawai BUMN" {{ $patient->pekerjaan=='Pegawai BUMN'?'selected':'' }}>Pegawai BUMN</option>
-                                            <option value="PNS" {{ $patient->pekerjaan=='PNS'?'selected':'' }}>PNS</option>
-                                            <option value="TNI" {{ $patient->pekerjaan=='TNI'?'selected':'' }}>TNI</option>
-                                            <option value="Polisi" {{ $patient->pekerjaan=='Polisi'?'selected':'' }}>Polisi</option>
-                                            <option value="Karyawan Swasta" {{ $patient->pekerjaan=='Karyawan Swasta'?'selected':'' }}>Karyawan Swasta</option>
-                                            <option value="Petani" {{ $patient->pekerjaan=='Petani'?'selected':'' }}>Petani</option>
-                                            <option value="Nelayan" {{ $patient->pekerjaan=='Nelayan'?'selected':'' }}>Nelayan</option>
-                                            <option value="Wiraswasta" {{ $patient->pekerjaan=='Wiraswasta'?'selected':'' }}>Wiraswasta</option>
-                                            <option value="Pelajar / Mahasiswa" {{ $patient->pekerjaan=='Pelajar / Mahasiswa'?'selected':'' }}>Pelajar / Mahasiswa</option>
-                                            <option value="Ibu Rumah Tangga" {{ $patient->pekerjaan=='Ibu Rumah Tangga'?'selected':'' }}>Ibu Rumah Tangga</option>
-                                            <option value="Tidak Bekerja" {{ $patient->pekerjaan=='Tidak Bekerja'?'selected':'' }}>Tidak Bekerja</option>
-                                            <option value="Lainnya" {{ $patient->pekerjaan=='Lainnya'?'selected':'' }}>Lainnya</option>
-                                        </select>
-                                    </div>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Agama</label>
+									<select name="agama" class="form-control">
+										<option value="" disabled>-- Pilih Agama --</option>
+										@php($selAgama = strtolower(trim((string) old('agama', $patient->agama ?? ''))))
+										@foreach(['Islam','Kristen','Katolik','Hindu','Budha','Konghucu'] as $agama)
+											<option value="{{ $agama }}" @selected($selAgama == strtolower($agama))>{{ $agama }}</option>
+										@endforeach
+									</select>
+								</div>
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Pendidikan</label>
+									<select name="pendidikan" class="form-control">
+										<option value="" disabled>-- Pilih Pendidikan --</option>
+										@php($selPend = strtolower(trim((string) old('pendidikan', $patient->pendidikan ?? ''))))
+										@foreach(['Tidak Sekolah','Belum / Tidak Tamat SD','Tamat SD','Tamat SLTP / SMP/ Sederajat','Tamat SLTA / SMA / SMK / Sederajat','Diploma','Sarjana','Pasca Sarjana'] as $pend)
+											<option value="{{ $pend }}" @selected($selPend == strtolower($pend))>{{ $pend }}</option>
+										@endforeach
+									</select>
+								</div>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="pendidikan">Pendidikan</label>
-                                        <select class="form-select form-control" name="pendidikan" required>
-                                            <option disabled hidden>Pilih Pendidikan Terakhir</option>
-                                            <option value="Tidak Sekolah" {{ $patient->pendidikan=='Tidak Sekolah'?'selected':'' }}>Tidak Sekolah</option>
-                                            <option value="Belum / Tidak Tamat SD" {{ $patient->pendidikan=='Belum / Tidak Tamat SD'?'selected':'' }}>Belum / Tidak Tamat SD</option>
-                                            <option value="Tamat SD" {{ $patient->pendidikan=='Tamat SD'?'selected':'' }}>Tamat SD</option>
-                                            <option value="Tamat SLTP / SMP/ Sederajat" {{ $patient->pendidikan=='Tamat SLTP / SMP/ Sederajat'?'selected':'' }}>Tamat SLTP / SMP/ Sederajat</option>
-                                            <option value="Tamat SLTA / SMA / SMK / Sederajat" {{ $patient->pendidikan=='Tamat SLTA / SMA / SMK / Sederajat'?'selected':'' }}>Tamat SLTA / SMA / SMK / Sederajat</option>
-                                            <option value="Diploma" {{ $patient->pendidikan=='Diploma'?'selected':'' }}>Diploma</option>
-                                            <option value="Sarjana" {{ $patient->pendidikan=='Sarjana'?'selected':'' }}>Sarjana</option>
-                                            <option value="Pasca Sarjana" {{ $patient->pendidikan=='Pasca Sarjana'?'selected':'' }}>Pasca Sarjana</option>
-                                        </select>
-                                    </div>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Status Perkawinan</label>
+									<select name="status_perkawinan" class="form-control">
+										<option value="" disabled>-- Pilih Status --</option>
+										@php($selSt = strtolower(trim((string) old('status_perkawinan', $patient->status_perkawinan ?? ''))))
+										@foreach(['Belum Kawin','Kawin','Cerai Hidup','Cerai Mati'] as $st)
+											<option value="{{ $st }}" @selected($selSt == strtolower($st))>{{ $st }}</option>
+										@endforeach
+									</select>
+								</div>
+								<div class="col-md-6 mb-3">
+									<label class="form-label">Status Keluarga</label>
+									<select name="status_keluarga" class="form-control">
+										<option value="" disabled>-- Pilih Status Keluarga --</option>
+										@php($selSk = strtolower(trim((string) old('status_keluarga', $patient->status_keluarga ?? ''))))
+										@foreach(['Tuan','Nyonya','Anak','Lainnya'] as $sk)
+											<option value="{{ $sk }}" @selected($selSk == strtolower($sk))>{{ $sk }}</option>
+										@endforeach
+									</select>
+								</div>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="Status_perkawinan">Status Perkawinan</label>
-                                        <select class="form-select form-control" name="status_perkawinan" required>
-                                            <option disabled hidden>Pilih Status Perkawinan</option>
-                                            <option value="Belum Kawin" {{ $patient->status_perkawinan=='Belum Kawin'?'selected':'' }}>Belum Kawin</option>
-                                            <option value="Kawin" {{ $patient->status_perkawinan=='Kawin'?'selected':'' }}>Kawin</option>
-                                            <option value="Cerai Hidup" {{ $patient->status_perkawinan=='Cerai Hidup'?'selected':'' }}>Cerai Hidup</option>
-                                            <option value="Cerai Mati" {{ $patient->status_perkawinan=='Cerai Mati'?'selected':'' }}>Cerai Mati</option>
-                                        </select>
-                                    </div>
+							<div class="row">
+								<div class="col-md-3 mb-3">
+									<label class="form-label">Provinsi</label>
+									<select id="provinsi" name="provinsi_id" class="form-control" required>
+										<option value="" disabled selected hidden>Pilih Provinsi</option>
+									</select>
+								</div>
+								<div class="col-md-3 mb-3">
+									<label class="form-label">Kabupaten</label>
+									<select id="kabupaten" name="kabupaten_id" class="form-control" required>
+										<option value="" disabled selected hidden>Pilih Kabupaten</option>
+										<option>-</option>
+									</select>
+								</div>
+								<div class="col-md-3 mb-3">
+									<label class="form-label">Kecamatan</label>
+									<select id="kecamatan" name="kecamatan_id" class="form-control" required>
+										<option value="" disabled selected hidden>Pilih Kecamatan</option>
+										<option>-</option>
+									</select>
+								</div>
+								<div class="col-md-3 mb-3">
+									<label class="form-label">Desa</label>
+									<select id="desa" name="desa_id" class="form-control" required>
+										<option value="" disabled selected hidden>Pilih Desa</option>
+										<option>-</option>
+									</select>
+								</div>
+							</div>
 
-                                    <div class="form-group">
-                                        <label for="status">Status dalam Keluarga</label>
-                                        <select class="form-select form-control" name="status_keluarga" required>
-                                            <option disabled hidden>Pilih Status dalam Keluarga</option>
-                                            <option value="Tuan" {{ $patient->status_keluarga=='Tuan'?'selected':'' }}>Tuan</option>
-                                            <option value="Nyonya" {{ $patient->status_keluarga=='Nyonya'?'selected':'' }}>Nyonya</option>
-                                            <option value="Anak" {{ $patient->status_keluarga=='Anak'?'selected':'' }}>Anak</option>
-                                            <option value="Lainnya" {{ $patient->status_keluarga=='Lainnya'?'selected':'' }}>Lainnya</option>
-                                        </select>
-                                    </div>
-
-                                    
-
-                                </div> <!-- END KOLOM TENGAH -->
-
-                                <!-- KOLOM KANAN -->
-                                <div class="col-md-6 col-lg-4">                                    
-                                    
-                                    <div class="form-group">
-                                        <label for="alamat">Alamat</label>
-                                        <textarea class="form-control" name="alamat" required rows="2">{{ $patient->alamat }}</textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="provinsi">Provinsi</label>
-                                        <select class="form-select form-control" id="provinsi" name="provinsi_id" required>
-                                            <option value="" disabled hidden>Pilih Provinsi</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="kabupaten">Kabupaten</label>
-                                        <select class="form-select form-control" id="kabupaten" name="kabupaten_id" required>
-                                            <option value="" disabled hidden>Pilih Kabupaten</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="kecamatan">Kecamatan</label>
-                                        <select class="form-select form-control" id="kecamatan" name="kecamatan_id" required>
-                                            <option value="" disabled hidden>Pilih Kecamatan</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="desa">Desa</label>
-                                        <select class="form-select form-control" id="desa" name="desa_id" required>
-                                            <option value="" disabled hidden>Pilih Desa</option>
-                                        </select>
-                                    </div>
-
-                                </div> <!-- END KOLOM KANAN -->
-                            </div> <!-- END ROW FORM -->
-                        </div> <!-- END CARD BODY -->
-
-                        <div class="card-action d-flex gap-2">
-                            <button type="submit" class="btn btn-success">Update</button>
-                            <a href="{{ route('master.pasien') }}" class="btn btn-danger">Cancel</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+							<div class="d-flex gap-2">
+								<a href="{{ route('master.pasien') }}" class="btn btn-ghost-secondary">Batal</a>
+								<button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    /*============ API WILAYAH ============*/
-    const API = "https://www.emsifa.com/api-wilayah-indonesia/api/";
-    let selected = {
-        provinsi: "{{$patient->provinsi_id}}",
-        kabupaten: "{{$patient->kabupaten_id}}",
-        kecamatan: "{{$patient->kecamatan_id}}",
-        desa: "{{$patient->desa_id}}"
-    };
+function cleanAndLimitKTP(event) {
+	let value = event.target.value;
+	value = value.replace(/[^0-9]/g, '');
+	value = value.slice(0, 16);
+	event.target.value = value;
+}
 
-    // LOAD PROVINSI
-    fetch(API + "provinces.json")
-        .then(r => r.json())
-        .then(d => {
-            provinsi.innerHTML = `<option hidden>Pilih Provinsi</option>`;
-            d.forEach(v => {
-                provinsi.innerHTML += `<option value="${v.id}" ${v.id == selected.provinsi ? 'selected' : ''}>${v.name}</option>`;
-            });
-            if (selected.provinsi) loadKabupaten(selected.provinsi);
-        });
+function cleanAndLimitWAInput(event) {
+	let value = event.target.value;
+	value = value.replace(/[^0-9]/g, '');
+	value = value.slice(0, 13);
+	event.target.value = value;
+}
 
-    function loadKabupaten(id) {
-        fetch(API + "regencies/" + id + ".json")
-            .then(r => r.json())
-            .then(d => {
-                kabupaten.innerHTML = `<option hidden>Pilih Kabupaten</option>`;
-                d.forEach(v => {
-                    kabupaten.innerHTML += `<option value="${v.id}" ${v.id == selected.kabupaten ? 'selected' : ''}>${v.name}</option>`;
-                });
-                if (selected.kabupaten) loadKecamatan(selected.kabupaten);
-            });
-    }
+function hitungUmur() {
+	const tanggalLahirInput = document.getElementById('tanggal_lahir');
+	const displayUmur = document.getElementById('umur_display');
+	const tanggalLahirValue = tanggalLahirInput ? tanggalLahirInput.value : null;
 
-    function loadKecamatan(id) {
-        fetch(API + "districts/" + id + ".json")
-            .then(r => r.json())
-            .then(d => {
-                kecamatan.innerHTML = `<option hidden>Pilih Kecamatan</option>`;
-                d.forEach(v => {
-                    kecamatan.innerHTML += `<option value="${v.id}" ${v.id == selected.kecamatan ? 'selected' : ''}>${v.name}</option>`;
-                });
-                if (selected.kecamatan) loadDesa(selected.kecamatan);
-            });
-    }
+	if (!tanggalLahirValue) {
+		if (displayUmur) displayUmur.textContent = "Umur: 0y 0m 0d";
+		return;
+	}
 
-    function loadDesa(id) {
-        fetch(API + "villages/" + id + ".json")
-            .then(r => r.json())
-            .then(d => {
-                desa.innerHTML = `<option hidden>Pilih Desa</option>`;
-                d.forEach(v => {
-                    desa.innerHTML += `<option value="${v.id}" ${v.id == selected.desa ? 'selected' : ''}>${v.name}</option>`;
-                });
-            });
-    }
+	const tglLahir = new Date(tanggalLahirValue);
+	const hariIni = new Date();
+	if (tglLahir > hariIni) {
+		if (displayUmur) displayUmur.textContent = "Umur: Tanggal Tidak Valid";
+		return;
+	}
 
-    // EVENT CHAIN ON CHANGE
-    provinsi.onchange = () => loadKabupaten(provinsi.value);
-    kabupaten.onchange = () => loadKecamatan(kabupaten.value);
-    kecamatan.onchange = () => loadDesa(kecamatan.value);
+	let tahun = hariIni.getFullYear() - tglLahir.getFullYear();
+	let bulan = hariIni.getMonth() - tglLahir.getMonth();
+	let hari = hariIni.getDate() - tglLahir.getDate();
 
+	if (hari < 0) {
+		bulan--;
+		hari += new Date(hariIni.getFullYear(), hariIni.getMonth(), 0).getDate();
+	}
+	if (bulan < 0) {
+		tahun--;
+		bulan += 12;
+	}
+	if (displayUmur) displayUmur.textContent = `Umur: ${tahun}y ${bulan}m ${hari}d`;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+	const inputKTP = document.getElementById('noktp');
+	const inputWA = document.getElementById('nowa');
+	if (inputKTP) inputKTP.addEventListener('input', cleanAndLimitKTP);
+	if (inputWA) inputWA.addEventListener('input', cleanAndLimitWAInput);
+
+	const tanggalLahirInput = document.getElementById('tanggal_lahir');
+	if (tanggalLahirInput) {
+		tanggalLahirInput.addEventListener('change', hitungUmur);
+		hitungUmur();
+	}
+});
 </script>
+@include('partials.wilayah_scripts', ['initialProv' => old('provinsi_id', $patient->provinsi_id), 'initialKab' => old('kabupaten_id', $patient->kabupaten_id), 'initialKec' => old('kecamatan_id', $patient->kecamatan_id), 'initialDesa' => old('desa_id', $patient->desa_id)])
 @endpush
+

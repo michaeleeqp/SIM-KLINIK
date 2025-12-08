@@ -33,6 +33,20 @@
                   </div>
                     <form action="{{ route('patient.store') }}" method="POST">
                       @csrf
+                      {{-- Validation errors & flash messages --}}
+                      @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                      @endif
+                      @if($errors->any())
+                        <div class="alert alert-danger">
+                          <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                              <li>{{ $error }}</li>
+                            @endforeach
+                          </ul>
+                        </div>
+                      @endif
+
                       <div class="card-body">
                         <div class="row">
                           <div class="col-md-6 col-lg-4">
@@ -129,7 +143,7 @@
                             </div>
                             <div class="form-group">
                               <label for="tanggal_lahir">Tanggal Lahir</label>
-                                <div class="input-group">
+                                <div class="input-group mb-3">
                                   <input
                                     type="date"
                                     class="form-control"
@@ -298,7 +312,7 @@
                                 />
                               </div>
                           </div>
-                          <div class="form-group">
+                            <div class="form-group">
                             <label for="tujuan">Tujuan</label>
                             <select
                               class="form-select form-control"
@@ -306,20 +320,21 @@
                               required
                             >
                             <option value="" disabled selected hidden>Pilih Tujuan</option>
-                            <option value="UGD">UGD</option>
-                            <option value="KLinik Umum">Klinik Umum</option>
-                            <option value="Rawat Inap">Rawat Inap</option>
+                            <option value="ugd">UGD</option>
+                            <option value="umum">Klinik Umum</option>
+                            <option value="rawat_inap">Rawat Inap</option>
                             </select>
                           </div>
                           <div class="form-group">
-                            <label for="jadwal">Dokter</label>
-                            <select name="dokter_id" class="form-select form-control" required>
-                                <option value="" disabled selected hidden>Pilih Dokter</option>
-                                @foreach ($dokters as $d)
-                                    <option value="{{ $d->id }}">
-                                        {{ $d->nama_dokter }}  -  ({{ $d->jadwal_praktek }})
-                                    </option>
-                                @endforeach
+                            <label for="jadwal">Jadwal</label>
+                            <select
+                              class="form-select form-control"
+                              name="jadwal_dokter"
+                              required
+                            >
+                            <option value="" disabled selected hidden>Pilih Jadwal</option>
+                            <option value="Klinik Umum - dr. Mikel  - 07.00-13.00">Klinik Umum - dr. Mikel  - 07.00-13.00</option>
+                            <option value="Klinik Umum - dr. Jokowi - 14.00-20.00">Klinik Umum - dr. Jokowi - 14.00-20.00</option>
                             </select>
                           </div>
                           <div class="form-group">
@@ -357,7 +372,7 @@
                               class="form-control"
                               name="no_asuransi"
                               id="no_asuransi"
-                              maxlength="13"
+                              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             />
                           </div>
                         </div>
@@ -428,8 +443,7 @@
 @endsection
 @push('scripts')
 <script>
-// 1. KONFIGURASI API WILAYAH (API Publik Indonesia)
-const BASE_URL_WILAYAH = 'https://www.emsifa.com/api-wilayah-indonesia/api/';
+// 1. KONFIGURASI API WILAYAH (API Publik Indonesia) — handled by shared partial
 
 // --- FUNGSI UTILITAS LAMA ANDA ---
 
@@ -510,141 +524,7 @@ function toggleNoAsuransi() {
   }
 }
 // --- FUNGSI BARU UNTUK DROPDOWN WILAYAH ---
-
-/**
- * Fungsi utilitas untuk mengambil data dari API dan mengisi dropdown.
- */
-async function fetchAndFillDropdown(url, dropdownId, placeholderText = null) {
-    const selectElement = document.getElementById(dropdownId);
-    
-    if (!selectElement) {
-        console.error(`Elemen dengan ID '${dropdownId}' tidak ditemukan.`);
-        return;
-    }
-
-    // Nonaktifkan dan tampilkan status loading
-    selectElement.disabled = true;
-    selectElement.innerHTML = `<option value="" disabled selected hidden>Memuat ${placeholderText}...</option>`;
-    
-    // Reset dropdown setelahnya (untuk Kabupaten, Kecamatan, Desa)
-    const nextDropdowns = ['provinsi', 'kabupaten', 'kecamatan', 'desa'];
-    const currentIndex = nextDropdowns.indexOf(dropdownId);
-
-    // Reset dropdown di level yang lebih rendah
-    if (currentIndex >= 0) {
-        for (let i = currentIndex + 1; i < nextDropdowns.length; i++) {
-            const nextSelect = document.getElementById(nextDropdowns[i]);
-            if (nextSelect) {
-                const name = nextDropdowns[i].charAt(0).toUpperCase() + nextDropdowns[i].slice(1);
-                nextSelect.innerHTML = `<option value="" disabled selected hidden>Pilih ${name}</option><option value="-">-</option>`;
-                nextSelect.disabled = true;
-            }
-        }
-    }
-
-    try {
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Isi dropdown dengan data baru
-        selectElement.innerHTML = `<option value="" disabled selected hidden>${placeholderText || 'Pilih'}</option>`;
-        
-        // Opsi '-' untuk level non-provinsi
-        if (dropdownId !== 'provinsi') {
-            selectElement.innerHTML += '<option value="-">-</option>';
-        }
-
-        data.forEach(item => {
-            const option = document.createElement('option');
-            // Menggunakan ID sebagai value dan Nama sebagai teks
-            option.value = item.id; 
-            option.textContent = item.name;
-            selectElement.appendChild(option);
-        });
-        selectElement.disabled = false; // Aktifkan kembali
-    } catch (error) {
-        console.error(`Error fetching data for ${dropdownId}:`, error);
-        selectElement.innerHTML = `<option value="" disabled selected hidden>Gagal memuat data</option>`;
-        // Biarkan disabled jika gagal
-    }
-}
-
-// --- INISIALISASI SEMUA FUNGSI SAAT DOKUMEN SIAP ---
-
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // SETUP CLEANERS & LISTENERS KTP/WA/UMUR
-    const inputKTP_Pasien = document.getElementById('noktp');
-    const inputKTP_PJ = document.getElementById('noktppenanggungjawab');
-    if (inputKTP_Pasien) inputKTP_Pasien.addEventListener('input', cleanAndLimitKTP);
-    if (inputKTP_PJ) inputKTP_PJ.addEventListener('input', cleanAndLimitKTP);
-
-    const inputWA = document.getElementById('nowa');
-    const inputWAPJ = document.getElementById('nowapenanggungjawab'); 
-    if (inputWA) inputWA.addEventListener('input', cleanAndLimitWAInput);
-    if (inputWAPJ) inputWAPJ.addEventListener('input', cleanAndLimitWAInput);
-
-    const tanggalLahirInput = document.getElementById('tanggal_lahir');
-    if (tanggalLahirInput) {
-        tanggalLahirInput.addEventListener('change', hitungUmur);
-        // Panggil saat dimuat untuk menampilkan umur default
-        hitungUmur(); 
-    }
-    
-    // PENGISIAN DROPDOWN WILAYAH DINAMIS
-
-    // 1. Inisialisasi Provinsi
-    fetchAndFillDropdown(`${BASE_URL_WILAYAH}provinces.json`, 'provinsi', 'Pilih Provinsi');
-
-    // 2. Listener Provinsi -> Kabupaten
-    const provinsiSelect = document.getElementById('provinsi');
-    if (provinsiSelect) {
-        provinsiSelect.addEventListener('change', function() {
-            const selectedProvinceId = this.value;
-            if (selectedProvinceId && selectedProvinceId !== '-') {
-                fetchAndFillDropdown(
-                    `${BASE_URL_WILAYAH}regencies/${selectedProvinceId}.json`, 
-                    'kabupaten', 
-                    'Pilih Kabupaten'
-                );
-            }
-        });
-    }
-
-    // 3. Listener Kabupaten -> Kecamatan
-    const kabupatenSelect = document.getElementById('kabupaten');
-    if (kabupatenSelect) {
-        kabupatenSelect.addEventListener('change', function() {
-            const selectedRegencyId = this.value;
-            if (selectedRegencyId && selectedRegencyId !== '-') {
-                fetchAndFillDropdown(
-                    `${BASE_URL_WILAYAH}districts/${selectedRegencyId}.json`, 
-                    'kecamatan', 
-                    'Pilih Kecamatan'
-                );
-            }
-        });
-    }
-    
-    // 4. Listener Kecamatan -> Desa
-    const kecamatanSelect = document.getElementById('kecamatan');
-    if (kecamatanSelect) {
-        kecamatanSelect.addEventListener('change', function() {
-            const selectedDistrictId = this.value;
-            if (selectedDistrictId && selectedDistrictId !== '-') {
-                fetchAndFillDropdown(
-                    `${BASE_URL_WILAYAH}villages/${selectedDistrictId}.json`, 
-                    'desa', 
-                    'Pilih Desa'
-                );
-            }
-        });
-    }
-});
+// wilayah JS moved to partial
 </script>
+@include('partials.wilayah_scripts')
 @endpush

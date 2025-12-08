@@ -188,7 +188,7 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="tekanan_darah">Tekanan Darah (mm/Hg)</label>
-                                        <input type="text" class="form-control" id="tekanan_darah" name="tekanan_darah" placeholder="120/80" required>
+                                        <input type="number" class="form-control" id="tekanan_darah" name="tekanan_darah" placeholder="120/80" required inputmode="numeric">
                                     </div>
                                 </div>
 
@@ -209,7 +209,7 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="respirasi">Respirasi (X/Menit)</label>
-                                        <input type="number" class="form-control" id="respirasi" name="respirasi" placeholder="20" required>
+                                        <input type="number" class="form-control" id="respirasi" name="respirasi" placeholder="20" required inputmode="numeric">
                                     </div>
                                 </div>
                             </div>

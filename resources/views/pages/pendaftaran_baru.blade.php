@@ -373,6 +373,7 @@
                               name="no_asuransi"
                               id="no_asuransi"
                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                              maxlenght="13"
                             />
                           </div>
                         </div>

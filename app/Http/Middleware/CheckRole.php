@@ -29,6 +29,7 @@ class CheckRole
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        // Hanya tampilkan notifikasi, jangan logout
+        return redirect()->back()->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 }

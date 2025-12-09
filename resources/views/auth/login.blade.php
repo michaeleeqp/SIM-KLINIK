@@ -268,6 +268,22 @@
                 <span>Masukkan email dan password Anda</span>
             </div>
             
+            @if (session('success'))
+                <div class="alert-box" style="background-color: #d1fae5; border-color: #10b981; color: #065f46;">
+                    <ul style="margin-left: 15px; margin-bottom: 0;">
+                        <li>{{ session('success') }}</li>
+                    </ul>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert-box">
+                    <ul style="margin-left: 15px; margin-bottom: 0;">
+                        <li>{{ session('error') }}</li>
+                    </ul>
+                </div>
+            @endif
+            
             @if ($errors->any())
                 <div class="alert-box">
                     <ul style="margin-left: 15px; margin-bottom: 0;">

@@ -77,6 +77,34 @@
           <!-- End Navbar -->
         </div>
 
+        <!-- Alert Notifications -->
+        @if (session('success'))
+          <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <strong>Sukses!</strong> {{ session('success') }}
+          </div>
+        @endif
+
+        @if (session('error'))
+          <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <strong>Error!</strong> {{ session('error') }}
+          </div>
+        @endif
+
+        @if ($errors->any())
+          <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <strong>Perhatian!</strong>
+            <ul class="mb-0">
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+        <!-- End Alert Notifications -->
+
         @yield('content')
 
         <!-- <footer class="footer">

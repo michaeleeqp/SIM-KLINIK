@@ -5,235 +5,181 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AsuhanController; // Pastikan controller ini ada
+use App\Http\Controllers\FarmasiController;
+use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
+use App\Models\Kunjungan; // Tambahkan Model Kunjungan
+use App\Models\Medicine;  // Tambahkan Model Medicine
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; // Tambahkan DB Facade
 
 // ==================== LOGIN ROUTES ====================
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.process');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// ==================== PUBLIC ROUTES ====================
-// Halaman utama sudah ditangani di route '/'
-
-// Development helper: quick login by email (only when APP_DEBUG=true)
+// Development helper
 if (config('app.debug')) {
     Route::get('/dev/login/{email}', function ($email) {
         $user = User::where('email', $email)->first();
-        if (! $user) {
-            return response("User not found: $email", 404);
-        }
+        if (!$user) return response("User not found: $email", 404);
         Auth::login($user);
         return redirect()->route('pages.dashboard');
     });
 }
 
-// ==================== PROTECTED ROUTES - NAKES (PERAWAT & DOKTER) ====================
-// Use parameterized `role` middleware to allow perawat, dokter, and admin
-Route::middleware(['auth', 'role:perawat,dokter,admin,rekam_medis'])->group(function () {
-    // FORM PASIEN BARU
-    Route::get('/pendaftaran/baru', [PatientController::class, 'create'])
-        ->name('pendaftaran.baru');
+// ==================== 1. SHARED: DASHBOARD ====================
+Route::middleware('auth')->get('/dashboard', [DashboardController::class, 'index'])->name('pages.dashboard');
 
-    // SIMPAN PASIEN BARU
-    Route::post('/pendaftaran/baru', [PatientController::class, 'store'])
-        ->name('patient.store');
-
-    // FORM PENDAFTARAN PASIEN LAMA (HALAMAN KOSONG)
-    Route::get('/pendaftaran/lama', [KunjunganController::class, 'form'])
-        ->name('pendaftaran.lama');
-
-    // FORM PENDAFTARAN PASIEN LAMA (SETELAH PASIEN DITEMUKAN)
-    Route::get('/pendaftaran/lama/pasien/{id}', [KunjunganController::class, 'create'])
-        ->name('kunjungan.create');
-
-    // EDIT KUNJUNGAN
-    Route::get('/pendaftaran/{id}/edit', [KunjunganController::class, 'edit'])
-        ->name('kunjungan.edit');
-
-    // UPDATE KUNJUNGAN
-    Route::put('/pendaftaran/{id}', [KunjunganController::class, 'update'])
-        ->name('kunjungan.update');
-
-    // DELETE KUNJUNGAN
-    Route::delete('/pendaftaran/{id}', [KunjunganController::class, 'destroy'])
-        ->name('kunjungan.destroy');
-
-    // SIMPAN KUNJUNGAN PASIEN LAMA
-    Route::post('/kunjungan/store', [KunjunganController::class, 'store'])
-        ->name('kunjungan.store');
-        
-    // LIST PENDAFTARAN
-    Route::get('/list/pendaftaran', [KunjunganController::class, 'index'])
-        ->name('list.pendaftaran');
-
-    // CARI PASIEN (AJAX)
-    Route::get('/pasien/cari', [PatientController::class, 'search'])
-        ->name('pasien.search');
-
-    // Master pasien
-    Route::get('/master/pasien', [PatientController::class, 'index'])
-        ->name('master.pasien');
-
-    // Edit patient
-    Route::get('/master/pasien/{id}/edit', [PatientController::class, 'edit'])
-        ->name('patient.edit');
-
-    // Update patient
-    Route::put('/master/pasien/{id}', [PatientController::class, 'update'])
-        ->name('patient.update');
-
-    // Delete patient
-    Route::delete('/master/pasien/{id}', [PatientController::class, 'destroy'])
-        ->name('patient.destroy');
+// ==================== 2. GROUP: DATA MEDIS / ASUHAN (Nakes + RM) ====================
+// Berisi: Logika halaman poli (UGD, Umum, Ranap) dan CRUD Asuhan
+Route::middleware(['auth', 'role:perawat,dokter,rekam_medis,admin'])->group(function () {
     
-    // Asuhan CRUD routes dengan implicit model binding
-    // Route untuk aksi rujuk (rawat inap) — hanya dipanggil dari halaman detail asuhan
-    Route::post('/ashuhans/{asuhan}/rujuk', [App\Http\Controllers\AsuhanController::class, 'rujuk'])
-        ->name('ashuhans.rujuk');
+    // --- HALAMAN POLIKLINIK (Logic dipindah ke sini agar Secure) ---
+    
+    // 1. UGD
+    Route::get('/ugd', function () {
+        $date = request()->query('date');
+        $day = request()->query('day');
 
-    Route::resource('ashuhans', App\Http\Controllers\AsuhanController::class)
+        $query = Kunjungan::with('patient')
+            ->whereRaw('LOWER(poli_tujuan) = ?', ['ugd']);
+
+        if ($date) {
+            $query->whereDate('tanggal_kunjungan', $date);
+        }
+        if ($day) {
+            $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
+        }
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
+        return view('pages.ugd', compact('kunjungans', 'date', 'day'));
+    })->name('poli.ugd');
+
+    // 2. KLINIK UMUM
+    Route::get('/umum', function () {
+        $date = request()->query('date');
+        $day = request()->query('day');
+
+        $query = Kunjungan::with('patient')
+            ->whereRaw('LOWER(poli_tujuan) = ?', ['umum']);
+
+        if ($date) {
+            $query->whereDate('tanggal_kunjungan', $date);
+        }
+        if ($day) {
+            $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
+        }
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
+        return view('pages.umum', compact('kunjungans', 'date', 'day'));
+    })->name('poli.umum');
+
+    // 3. RAWAT INAP
+    Route::get('/ranap', function () {
+        $date = request()->query('date');
+        $day = request()->query('day');
+
+        $query = Kunjungan::with('patient')
+            ->whereRaw('LOWER(poli_tujuan) = ?', ['rawat_inap']);
+
+        if ($date) {
+            $query->whereDate('tanggal_kunjungan', $date);
+        }
+        if ($day) {
+            $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
+        }
+
+        // Exclude patients who have an asuhan (rawat_inap) with a discharge_date
+        $query->whereNotExists(function ($q) {
+            $q->select(DB::raw(1))
+              ->from('ashuhans')
+              ->whereRaw('ashuhans.patient_id = kunjungans.patient_id')
+              ->whereRaw("LOWER(ashuhans.poli_tujuan) = 'rawat_inap'")
+              ->whereNotNull('ashuhans.discharge_date');
+        });
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
+        
+        // Load medicines for the ranap form
+        $medicines = Medicine::orderBy('name')->get();
+
+        return view('pages.ranap', compact('kunjungans', 'date', 'day', 'medicines'));
+    })->name('poli.ranap');
+
+
+    // --- CRUD ASUHAN UTAMA ---
+    Route::resource('ashuhans', AsuhanController::class)
         ->parameters(['ashuhans' => 'asuhan']);
-    Route::get('/ashuhans/export/csv', [App\Http\Controllers\AsuhanController::class, 'export'])->name('ashuhans.export');
-    // Update discharge date for asuhan
-    Route::patch('/ashuhans/{asuhan}/discharge', [App\Http\Controllers\AsuhanController::class, 'updateDischarge'])->name('ashuhans.update-discharge');
-    Route::patch('/ashuhans/{asuhan}/discharge/clear', [App\Http\Controllers\AsuhanController::class, 'clearDischarge'])->name('ashuhans.clear-discharge');
-    // Poliklinik quick-asuhan: submit asuhan from poliklinik pages (ugd, umum, ranap)
-    Route::post('/poliklinik/{poli}/assessments', [App\Http\Controllers\AsuhanController::class, 'storeFromPoliklinik'])->name('poliklinik.assessments.store');
+
+    // Export Data Medis
+    Route::get('/ashuhans/export/csv', [AsuhanController::class, 'export'])->name('ashuhans.export');
 });
 
-// ==================== PROTECTED ROUTES - ADMIN ====================
-// Use parameterized role middleware for clarity
+// ==================== 3. GROUP: AKSI MEDIS KHUSUS (Nakes Only) ====================
+// Aksi berat (Rujuk, Discharge, Input Medis) hanya untuk Dokter/Perawat
+Route::middleware(['auth', 'role:perawat,dokter,admin'])->group(function () {
+    Route::post('/ashuhans/{asuhan}/rujuk', [AsuhanController::class, 'rujuk'])->name('ashuhans.rujuk');
+    Route::patch('/ashuhans/{asuhan}/discharge', [AsuhanController::class, 'updateDischarge'])->name('ashuhans.update-discharge');
+    Route::patch('/ashuhans/{asuhan}/discharge/clear', [AsuhanController::class, 'clearDischarge'])->name('ashuhans.clear-discharge');
+    
+    // Input Quick Assessment dari halaman poli
+    Route::post('/poliklinik/{poli}/assessments', [AsuhanController::class, 'storeFromPoliklinik'])
+        ->name('poliklinik.assessments.store');
+});
+
+// ==================== 4. GROUP: PENDAFTARAN & MASTER PASIEN (RM & Admin) ====================
+Route::middleware(['auth', 'role:rekam_medis,admin'])->group(function () {
+    // Pendaftaran
+    Route::get('/pendaftaran/baru', [PatientController::class, 'create'])->name('pendaftaran.baru');
+    Route::post('/pendaftaran/baru', [PatientController::class, 'store'])->name('patient.store');
+    Route::get('/pendaftaran/lama', [KunjunganController::class, 'form'])->name('pendaftaran.lama');
+    Route::get('/pendaftaran/lama/pasien/{id}', [KunjunganController::class, 'create'])->name('kunjungan.create');
+    Route::post('/kunjungan/store', [KunjunganController::class, 'store'])->name('kunjungan.store');
+    
+    // List & Manage Kunjungan
+    Route::get('/list/pendaftaran', [KunjunganController::class, 'index'])->name('list.pendaftaran');
+    Route::get('/pendaftaran/{id}/edit', [KunjunganController::class, 'edit'])->name('kunjungan.edit');
+    Route::put('/pendaftaran/{id}', [KunjunganController::class, 'update'])->name('kunjungan.update');
+    Route::delete('/pendaftaran/{id}', [KunjunganController::class, 'destroy'])->name('kunjungan.destroy');
+
+    // Master Pasien
+    Route::get('/master/pasien', [PatientController::class, 'index'])->name('master.pasien');
+    Route::get('/pasien/cari', [PatientController::class, 'search'])->name('pasien.search');
+    Route::get('/master/pasien/{id}/edit', [PatientController::class, 'edit'])->name('patient.edit');
+    Route::put('/master/pasien/{id}', [PatientController::class, 'update'])->name('patient.update');
+    Route::delete('/master/pasien/{id}', [PatientController::class, 'destroy'])->name('patient.destroy');
+});
+
+// ==================== 5. GROUP: FARMASI (Farmasi & Admin) ====================
+Route::middleware(['auth', 'role:farmasi,admin'])->group(function () {
+    Route::get('/farmasi/prescriptions', [FarmasiController::class, 'index'])->name('farmasi.prescriptions');
+    Route::post('/farmasi/prescriptions/{asuhan}/collect', [FarmasiController::class, 'collect'])->name('farmasi.prescriptions.collect');
+    Route::post('/farmasi/prescriptions/{asuhan}/finish', [FarmasiController::class, 'finish'])->name('farmasi.prescriptions.finish');
+    Route::post('/farmasi/prescriptions/finish-all', [FarmasiController::class, 'finishAll'])->name('farmasi.prescriptions.finish_all');
+    Route::post('/farmasi/prescriptions/{asuhan}/dispense', [FarmasiController::class, 'dispense'])->name('farmasi.prescriptions.dispense');
+
+    Route::resource('medicines', MedicineController::class)->except(['show']);
+});
+
+// ==================== 6. GROUP: LAPORAN (RM & Farmasi & Admin) ====================
+Route::middleware(['auth', 'role:rekam_medis,farmasi,admin'])->group(function () {
+    Route::get('/laporan/kunjungan', [LaporanController::class, 'kunjungan'])->name('laporan.kunjungan');
+    Route::get('/laporan/resep', [LaporanController::class, 'resep'])->name('laporan.resep');
+    Route::get('/laporan/kunjungan/export', [LaporanController::class, 'exportKunjungan'])->name('laporan.kunjungan.export');
+    Route::get('/laporan/resep/export', [LaporanController::class, 'exportResep'])->name('laporan.resep.export');
+    
+    // Legacy Routes
+    Route::get('/reports/kunjungan/{poli}/csv', [ReportController::class, 'kunjunganCsv'])->name('reports.kunjungan.csv');
+    Route::get('/reports/farmasi/csv', [ReportController::class, 'farmasiCsv'])->name('reports.farmasi.csv');
+});
+
+// ==================== 7. ADMIN ONLY ====================
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-    // User Management
-    Route::resource('users', App\Http\Controllers\UserController::class);
-});
-
-// ==================== PROTECTED ROUTES - REKAM MEDIS ====================
-// Allow rekam_medis and admin
-Route::middleware(['auth', 'role:rekam_medis,admin'])->group(function () {
-    
-    // Data Medis (Asuhan Medis)
-    Route::get('/ashuhans', [App\Http\Controllers\AsuhanController::class, 'index'])
-        ->name('ashuhans.index');
-    Route::get('/ashuhans/{asuhan}', [App\Http\Controllers\AsuhanController::class, 'show'])
-        ->name('ashuhans.show');
-
-    // Reports
-    Route::get('/reports/kunjungan/{poli}/csv', [App\Http\Controllers\ReportController::class, 'kunjunganCsv'])
-        ->name('reports.kunjungan.csv');
-    Route::get('/reports/farmasi/csv', [App\Http\Controllers\ReportController::class, 'farmasiCsv'])
-        ->name('reports.farmasi.csv');
-});
-
-// ==================== PROTECTED ROUTES - FARMASI ====================
-// Allow farmasi and admin
-Route::middleware(['auth', 'role:farmasi,admin'])->group(function () {
-    // Daftar resep & aksi koleksi
-    Route::get('/farmasi/prescriptions', [App\Http\Controllers\FarmasiController::class, 'index'])
-        ->name('farmasi.prescriptions');
-    Route::post('/farmasi/prescriptions/{asuhan}/collect', [App\Http\Controllers\FarmasiController::class, 'collect'])
-        ->name('farmasi.prescriptions.collect');
-    // Mark antrian finished (finalize registration/queue)
-    Route::post('/farmasi/prescriptions/{asuhan}/finish', [App\Http\Controllers\FarmasiController::class, 'finish'])
-        ->name('farmasi.prescriptions.finish');
-    // Finish all pending prescriptions (bulk)
-    Route::post('/farmasi/prescriptions/finish-all', [App\Http\Controllers\FarmasiController::class, 'finishAll'])
-        ->name('farmasi.prescriptions.finish_all');
-    // Dispense prescription: input dispensed medicines and total price
-    Route::post('/farmasi/prescriptions/{asuhan}/dispense', [App\Http\Controllers\FarmasiController::class, 'dispense'])
-        ->name('farmasi.prescriptions.dispense');
-
-    // Medicine management (kelola obat)
-    Route::resource('medicines', App\Http\Controllers\MedicineController::class)->except(['show']);
-});
-
-// ==================== SHARED PROTECTED ROUTES ====================
-Route::middleware('auth')->group(function () {
-    // Dashboard accessible by nakes, rekam_medis, and farmasi
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('pages.dashboard');
-    
-    // Laporan (accessible by all authenticated users)
-    Route::get('/laporan/kunjungan', [App\Http\Controllers\LaporanController::class, 'kunjungan'])
-        ->name('laporan.kunjungan');
-    Route::get('/laporan/kunjungan/export', [App\Http\Controllers\LaporanController::class, 'exportKunjungan'])
-        ->name('laporan.kunjungan.export');
-    Route::get('/laporan/resep', [App\Http\Controllers\LaporanController::class, 'resep'])
-        ->name('laporan.resep');
-    Route::get('/laporan/resep/export', [App\Http\Controllers\LaporanController::class, 'exportResep'])
-        ->name('laporan.resep.export');
-});
- 
-// ==================== UNPROTECTED PAGE ROUTES ====================
-
-
-Route::get('/ugd', function () {
-    $date = request()->query('date');
-    $day = request()->query('day');
-
-    $query = \App\Models\Kunjungan::with('patient')
-        ->whereRaw('LOWER(poli_tujuan) = ?', ['ugd']);
-
-    if ($date) {
-        $query->whereDate('tanggal_kunjungan', $date);
-    }
-    if ($day) {
-        $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
-    }
-
-    $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
-
-    return view('pages.ugd', compact('kunjungans', 'date', 'day'));
-});
-
-Route::get('/umum', function () {
-    $date = request()->query('date');
-    $day = request()->query('day');
-
-    $query = \App\Models\Kunjungan::with('patient')
-        ->whereRaw('LOWER(poli_tujuan) = ?', ['umum']);
-
-    if ($date) {
-        $query->whereDate('tanggal_kunjungan', $date);
-    }
-    if ($day) {
-        $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
-    }
-
-    $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
-
-    return view('pages.umum', compact('kunjungans', 'date', 'day'));
-});
-
-Route::get('/ranap', function () {
-    $date = request()->query('date');
-    $day = request()->query('day');
-
-    $query = \App\Models\Kunjungan::with('patient')
-        ->whereRaw('LOWER(poli_tujuan) = ?', ['rawat_inap']);
-
-    if ($date) {
-        $query->whereDate('tanggal_kunjungan', $date);
-    }
-    if ($day) {
-        $query->whereRaw("DAYNAME(tanggal_kunjungan) = ?", [$day]);
-    }
-
-    // Exclude patients who have an asuhan (rawat_inap) with a discharge_date (already discharged)
-    $query->whereNotExists(function ($q) {
-        $q->select(\DB::raw(1))
-          ->from('ashuhans')
-          ->whereRaw('ashuhans.patient_id = kunjungans.patient_id')
-          ->whereRaw("LOWER(ashuhans.poli_tujuan) = 'rawat_inap'")
-          ->whereNotNull('ashuhans.discharge_date');
-    });
-
-    $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->get();
-
-    // Load medicines for the ranap form
-    $medicines = \App\Models\Medicine::orderBy('name')->get();
-
-    return view('pages.ranap', compact('kunjungans', 'date', 'day', 'medicines'));
+    Route::resource('users', UserController::class);
 });

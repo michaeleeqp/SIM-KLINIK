@@ -187,7 +187,10 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="tekanan_darah">Tekanan Darah (mm/Hg)</label>
-                                        <input type="number" class="form-control" id="tekanan_darah" name="tekanan_darah" placeholder="120/80" required>
+                                        <input type="text" class="form-control" id="tekanan_darah" 
+       name="tekanan_darah" placeholder="120/80" 
+       required
+       oninput="this.value = this.value.replace(/[^0-9\/]/g, '')">
                                     </div>
                                 </div>
 

@@ -4,7 +4,7 @@
 <div class="container">
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Poliklinik UGD — Asuhan Medis</h3>
+            <h3 class="fw-bold mb-3"> UGD — Asuhan Medis</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="#">
@@ -188,7 +188,11 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="tekanan_darah">Tekanan Darah (mm/Hg)</label>
-                                        <input type="text" class="form-control" id="tekanan_darah" name="tekanan_darah" placeholder="120/80" required>
+                                        <input type="text" class="form-control" id="tekanan_darah" 
+       name="tekanan_darah" placeholder="120/80" 
+       required
+       oninput="this.value = this.value.replace(/[^0-9\/]/g, '')">
+
                                     </div>
                                 </div>
 
@@ -209,7 +213,7 @@
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="respirasi">Respirasi (X/Menit)</label>
-                                        <input type="number" class="form-control" id="respirasi" name="respirasi" placeholder="20" required>
+                                        <input type="number" class="form-control" id="respirasi" name="respirasi" placeholder="20" required inputmode="numeric">
                                     </div>
                                 </div>
                             </div>
